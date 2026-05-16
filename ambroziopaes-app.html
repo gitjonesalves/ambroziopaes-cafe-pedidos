@@ -787,14 +787,14 @@
         // ============= MENU =============
         const MENU = {
             'café': [
-                { name: 'Ristretto', icon: '☕', price: 7.00 },
-                { name: 'Espresso', icon: '☕', price: 7.00 },
-                { name: 'Espresso Doppio', icon: '☕', price: 7.00 },
-                { name: 'Cappuccino Italiano', icon: '🥛', price: 8.00 },
+                { name: 'Café Coado', icon: '☕', price: 8.00, desc: '175ml de café coado' },
+                { name: 'Ristretto', icon: '☕', price: 7.00, desc: '' },
+                { name: 'Espresso', icon: '☕', price: 7.00, desc: '' },
+                { name: 'Espresso Doppio', icon: '☕', price: 7.00, desc: '' },
+                { name: 'Cappuccino Italiano', icon: '🥛', price: 8.00, desc: '' },
                 //{ name: 'Cappuccino', icon: '🥛', price: 8.00 },
-                { name: 'Café Coado', icon: '☕', price: 8.00 },
                 //{ name: 'Latte', icon: '🥛', price: 8.50 },
-                { name: 'Café com Leite', icon: '☕', price: 8.00 },
+                { name: 'Café com Leite', icon: '☕', price: 8.00, desc: '' },
             ],
             <!-- 'bebidas': [ -->
                 <!-- { name: 'Suco Natural', icon: '🧃', price: 7.00 }, -->
@@ -803,20 +803,23 @@
                 <!-- { name: 'Água', icon: '💧', price: 2.00 }, -->
                 <!-- { name: 'Refrigerante', icon: '🥤', price: 5.00 }, -->
             <!-- ], -->
-            'salgados': [
-                { name: 'Croissant', icon: '🥐', price: 8.00 },
-                { name: 'Pão de Queijo', icon: '🥖', price: 5.00 },
-                { name: 'Bolo Salgado', icon: '🍰', price: 6.00 },
-                { name: 'Sanduíche Natural', icon: '🥪', price: 10.00 },
-                { name: 'Pastel', icon: '🥟', price: 7.00 },
+            'paes': [
+                //{ name: 'Croissant', icon: '🥐', price: 8.00 },
+                //{ name: 'Pão de Queijo', icon: '🥖', price: 5.00 },
+                { name: 'Pão de Classico', icon: '🥖', price: 30.00, desc: 'Pao classico sem recheios' },
+                { name: 'Pão de Calabreza', icon: '🥖', price: 35.00, desc: 'Pao recheado com calabreza ralada' },
+                { name: 'Pão de Azeitona', icon: '🥖', price: 35.00, desc: 'Pao recheado com azeitona chilena' },
+                <!-- { name: 'Bolo Salgado', icon: '🍰', price: 6.00 }, -->
+                <!-- { name: 'Sanduíche Natural', icon: '🥪', price: 10.00 }, -->
+                <!-- { name: 'Pastel', icon: '🥟', price: 7.00 }, -->
             ],
-            'doces': [
-                { name: 'Bolo de Chocolate', icon: '🍰', price: 6.00 },
-                { name: 'Brownie', icon: '🍫', price: 7.00 },
-                { name: 'Torta de Frutas', icon: '🍪', price: 8.00 },
-                { name: 'Biscoito Doce', icon: '🍪', price: 4.00 },
-                { name: 'Pudim', icon: '🍮', price: 6.00 },
-            ],
+            <!-- 'doces': [ -->
+                <!-- { name: 'Bolo de Chocolate', icon: '🍰', price: 6.00 }, -->
+                <!-- { name: 'Brownie', icon: '🍫', price: 7.00 }, -->
+                <!-- { name: 'Torta de Frutas', icon: '🍪', price: 8.00 }, -->
+                <!-- { name: 'Biscoito Doce', icon: '🍪', price: 4.00 }, -->
+                <!-- { name: 'Pudim', icon: '🍮', price: 6.00 }, -->
+            <!-- ], -->
         };
 
         // ============= FIREBASE INIT =============
@@ -935,6 +938,7 @@
                         <div class="menu-item-icon">${item.icon}</div>
                         <div class="menu-item-name">${item.name}</div>
                         <div class="menu-item-price">R$ ${item.price.toFixed(2)}</div>
+                        <div class="menu-item-desc">${item.desc}</div>
                         <div class="menu-item-qty" id="qty-${item.name}"></div>
                     `;
                     grid.appendChild(div);
