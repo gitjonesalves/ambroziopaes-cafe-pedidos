@@ -321,8 +321,27 @@
 
     <!-- CONTENT -->
     <div class="container" id="mainContent">
-        <!-- HOME -->
-        <div id="homePage" class="page">
+    <!-- AUTH SCREEN -->
+    <div id="adminLoginPage" class="page" style="display: none; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 90%; max-width: 400px; text-align: center; border-top: 4px solid var(--accent);">
+            <div style="font-size: 48px; margin-bottom: 15px;">🔐</div>
+            <h1 style="font-size: 28px; margin-bottom: 10px; color: var(--primary);">Acesso Admin</h1>
+            <p style="color: #666; margin-bottom: 30px; font-size: 14px;">Digite a senha para continuar</p>
+            
+            <div class="form-group">
+                <label style="text-align: left;">Senha:</label>
+                <input type="password" id="adminPassword" placeholder="••••••••" style="font-size: 18px;">
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%; margin-bottom: 15px;" onclick="validateAdminPassword()">Entrar</button>
+            <button class="btn" style="width: 100%; background: var(--border); color: var(--primary);" onclick="goHome()">← Voltar</button>
+            
+            <div id="adminLoginError" style="color: var(--danger); margin-top: 15px; font-weight: 600; display: none;"></div>
+        </div>
+    </div>
+
+    <!-- HOME -->
+    <div id="homePage" class="page">
             <h1>Bem-vindo ao Sistema de Pedidos</h1>
             <p style="margin-bottom: 30px; color: #666; font-size: 16px;">Escolha seu acesso:</p>
             
@@ -371,6 +390,12 @@
 
             <div class="card">
                 <div style="font-weight: 700; margin-bottom: 15px; color: var(--primary); font-size: 16px;">🛒 Seu Pedido</div>
+                
+                <div class="form-group">
+                    <label>Mesa ou Nome do Cliente</label>
+                    <input type="text" id="clienteInfo" placeholder="ex: Mesa 5 ou João Silva" style="font-size: 16px;">
+                </div>
+
                 <div id="cartItems"></div>
                 <div style="border-top: 2px solid var(--border); padding-top: 12px; margin-top: 12px; display: flex; justify-content: space-between; font-weight: 700; color: var(--primary);">
                     <span>Total:</span>
@@ -490,6 +515,27 @@
                     <h2>Disponibilidade de Itens</h2>
                     <div id="availabilityList"></div>
                 </div>
+
+                <!-- ATENDENTES -->
+                <div id="atendentesTab" class="tab-content">
+                    <h2>Gestão de Atendentes</h2>
+                    
+                    <div class="card">
+                        <h3 style="margin-top: 0;">Cadastrar Novo Atendente</h3>
+                        <div class="form-group">
+                            <label>Nome do Atendente</label>
+                            <input type="text" id="atendenteName" placeholder="ex: João Silva">
+                        </div>
+                        <div class="form-group">
+                            <label>Email (opcional)</label>
+                            <input type="email" id="atendenteEmail" placeholder="joao@cafe.com">
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="createAtendente()">+ Cadastrar Atendente</button>
+                    </div>
+
+                    <h3>Atendentes Cadastrados</h3>
+                    <div id="atendentesList"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -514,33 +560,37 @@
         let salesData = {};
         let insumos = {};
         let composicoes = {};
+        let atendentes = {};
+        
+        // ============= ADMIN CONFIG =============
+        const ADMIN_PASSWORD = "cafe123"; // Mude isso para uma senha segura!
 
         const MENU = {
             'bebidas': [
-                { name: 'Suco Natural', icon: '🧃', price: 7.00, group: 'bebidas' },
-                { name: 'Açaí', icon: '🍇', price: 12.00, group: 'bebidas' },
-                { name: 'Vitamina', icon: '🥤', price: 10.00, group: 'bebidas' },
-                { name: 'Água', icon: '💧', price: 2.00, group: 'bebidas' },
-                { name: 'Refrigerante', icon: '🥤', price: 5.00, group: 'bebidas' },
-                { name: 'Café Coado', icon: '☕', price: 5.00, group: 'bebidas' },
-                { name: 'Espresso', icon: '☕', price: 6.00, group: 'bebidas' },
-                { name: 'Cappuccino', icon: '🥛', price: 8.00, group: 'bebidas' },
-                { name: 'Latte', icon: '🥛', price: 8.50, group: 'bebidas' },
-                { name: 'Café com Leite', icon: '☕', price: 6.00, group: 'bebidas' },
+                { name: 'Suco Natural', icon: '🧃', price: 7.00, group: 'bebidas', description: 'Suco fresco natural', sugar: false, lactose: false },
+                { name: 'Açaí', icon: '🍇', price: 12.00, group: 'bebidas', description: 'Açaí com granola', sugar: true, lactose: false },
+                { name: 'Vitamina', icon: '🥤', price: 10.00, group: 'bebidas', description: 'Vitamina de frutas com leite', sugar: true, lactose: true },
+                { name: 'Água', icon: '💧', price: 2.00, group: 'bebidas', description: 'Água filtrada', sugar: false, lactose: false },
+                { name: 'Refrigerante', icon: '🥤', price: 5.00, group: 'bebidas', description: 'Refrigerante gelado', sugar: true, lactose: false },
+                { name: 'Café Coado', icon: '☕', price: 5.00, group: 'bebidas', description: 'Café coado tradicional', sugar: false, lactose: false },
+                { name: 'Espresso', icon: '☕', price: 6.00, group: 'bebidas', description: 'Espresso duplo intenso', sugar: false, lactose: false },
+                { name: 'Cappuccino', icon: '🥛', price: 8.00, group: 'bebidas', description: 'Espresso com leite vaporizado e canela', sugar: true, lactose: true },
+                { name: 'Latte', icon: '🥛', price: 8.50, group: 'bebidas', description: 'Espresso com bastante leite quente', sugar: true, lactose: true },
+                { name: 'Café com Leite', icon: '☕', price: 6.00, group: 'bebidas', description: 'Café coado com leite quente', sugar: true, lactose: true },
             ],
             'comidas': [
-                { name: 'Croissant', icon: '🥐', price: 8.00, group: 'comidas' },
-                { name: 'Pão de Queijo', icon: '🥖', price: 5.00, group: 'comidas' },
-                { name: 'Bolo Salgado', icon: '🍰', price: 6.00, group: 'comidas' },
-                { name: 'Sanduíche Natural', icon: '🥪', price: 10.00, group: 'comidas' },
-                { name: 'Pastel', icon: '🥟', price: 7.00, group: 'comidas' },
+                { name: 'Croissant', icon: '🥐', price: 8.00, group: 'comidas', description: 'Croissant fresco e crocante', sugar: true, lactose: true },
+                { name: 'Pão de Queijo', icon: '🥖', price: 5.00, group: 'comidas', description: 'Pão de queijo caseiro', sugar: false, lactose: true },
+                { name: 'Bolo Salgado', icon: '🍰', price: 6.00, group: 'comidas', description: 'Bolo salgado do dia', sugar: false, lactose: true },
+                { name: 'Sanduíche Natural', icon: '🥪', price: 10.00, group: 'comidas', description: 'Pão integral com proteína e legumes', sugar: false, lactose: false },
+                { name: 'Pastel', icon: '🥟', price: 7.00, group: 'comidas', description: 'Pastel quente crocante', sugar: false, lactose: false },
             ],
             'sobremesas': [
-                { name: 'Bolo de Chocolate', icon: '🍰', price: 6.00, group: 'sobremesas' },
-                { name: 'Brownie', icon: '🍫', price: 7.00, group: 'sobremesas' },
-                { name: 'Torta de Frutas', icon: '🍪', price: 8.00, group: 'sobremesas' },
-                { name: 'Biscoito Doce', icon: '🍪', price: 4.00, group: 'sobremesas' },
-                { name: 'Pudim', icon: '🍮', price: 6.00, group: 'sobremesas' },
+                { name: 'Bolo de Chocolate', icon: '🍰', price: 6.00, group: 'sobremesas', description: 'Bolo de chocolate fofinho', sugar: true, lactose: true },
+                { name: 'Brownie', icon: '🍫', price: 7.00, group: 'sobremesas', description: 'Brownie de chocolate belga', sugar: true, lactose: true },
+                { name: 'Torta de Frutas', icon: '🍪', price: 8.00, group: 'sobremesas', description: 'Torta com frutas frescas', sugar: true, lactose: true },
+                { name: 'Biscoito Doce', icon: '🍪', price: 4.00, group: 'sobremesas', description: 'Biscoitos amanteigados doces', sugar: true, lactose: true },
+                { name: 'Pudim', icon: '🍮', price: 6.00, group: 'sobremesas', description: 'Pudim de leite condensado com calda', sugar: true, lactose: true },
             ],
         };
 
@@ -566,6 +616,10 @@
 
                 db.ref('composicoes').on('value', (snapshot) => {
                     composicoes = snapshot.val() || {};
+                });
+
+                db.ref('atendentes').on('value', (snapshot) => {
+                    atendentes = snapshot.val() || {};
                 });
             } catch (error) {
                 console.error('Firebase error:', error);
@@ -604,10 +658,30 @@
         }
 
         function goToAdmin() {
+            showPage('adminLoginPage');
+            document.getElementById('adminPassword').focus();
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminLoginError').style.display = 'none';
+        }
+
+        function validateAdminPassword() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('adminLoginError').style.display = 'none';
+                accessAdminPanel();
+            } else {
+                document.getElementById('adminLoginError').textContent = '❌ Senha incorreta!';
+                document.getElementById('adminLoginError').style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
+        }
+
+        function accessAdminPanel() {
             initFirebase();
             showPage('adminPage');
             document.getElementById('roleTitle').textContent = '📊 Admin';
-            document.getElementById('headerSubtitle').textContent = 'Relatórios e Estoque';
+            document.getElementById('headerSubtitle').textContent = 'Relatórios, Estoque e Atendentes';
             loadAdminData();
         }
 
@@ -637,11 +711,24 @@
                         div.style.transform = 'translateY(0)';
                     };
                     div.onclick = () => addToCart(item);
+                    
+                    const sugarBadge = item.sugar ? '🍬' : '0️⃣ Sem Açúcar';
+                    const lactoseBadge = item.lactose ? '🥛' : '🌱 Sem Lactose';
+                    
                     div.innerHTML = `
                         <div style="font-size: 32px; margin-bottom: 8px;">${item.icon}</div>
-                        <div style="font-weight: 600; font-size: 13px; margin-bottom: 5px; color: var(--primary);">${item.name}</div>
-                        <div style="color: var(--accent); font-weight: 700; font-size: 15px;">R$ ${item.price.toFixed(2)}</div>
-                        <div id="qty-${item.name}" style="margin-top: 8px; font-size: 11px; color: #888; background: rgba(85, 107, 47, 0.1); padding: 4px 8px; border-radius: 6px; display: inline-block;"></div>
+                        <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px; color: var(--primary);">${item.name}</div>
+                        <div style="font-size: 11px; color: #888; margin-bottom: 8px; min-height: 22px; line-height: 1.3;">${item.description}</div>
+                        <div style="display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; font-size: 12px;">
+                            <span style="background: ${item.sugar ? 'rgba(211, 47, 47, 0.1)' : 'rgba(124, 179, 66, 0.1)'}; color: ${item.sugar ? 'var(--danger)' : 'var(--success)'}; padding: 2px 6px; border-radius: 4px; font-weight: 600;">
+                                ${sugarBadge}
+                            </span>
+                            <span style="background: ${item.lactose ? 'rgba(211, 47, 47, 0.1)' : 'rgba(124, 179, 66, 0.1)'}; color: ${item.lactose ? 'var(--danger)' : 'var(--success)'}; padding: 2px 6px; border-radius: 4px; font-weight: 600;">
+                                ${lactoseBadge}
+                            </span>
+                        </div>
+                        <div style="color: var(--accent); font-weight: 700; font-size: 16px; margin-bottom: 8px;">R$ ${item.price.toFixed(2)}</div>
+                        <div id="qty-${item.name}" style="font-size: 11px; color: #888; background: rgba(85, 107, 47, 0.1); padding: 4px 8px; border-radius: 6px; display: inline-block;"></div>
                     `;
                     grid.appendChild(div);
                 });
@@ -703,6 +790,13 @@
 
         function submitOrder() {
             const items = Object.values(cart).filter(item => item.quantity > 0);
+            const clienteInfo = document.getElementById('clienteInfo').value.trim();
+            
+            if (!clienteInfo) {
+                showToast('Digite o número da mesa ou nome!', 'error');
+                return;
+            }
+
             if (items.length === 0) return;
 
             const orderId = Date.now().toString();
@@ -711,6 +805,7 @@
 
             const orderData = {
                 id: orderId,
+                clienteInfo: clienteInfo,
                 items: items.map(item => ({ name: item.name, quantity: item.quantity, price: item.price })),
                 total: total,
                 status: 'pending',
@@ -722,7 +817,7 @@
 
             if (db) {
                 db.ref(`orders/${orderId}`).set(orderData).then(() => {
-                    showToast(`✅ Pedido #${orderId.slice(-4)} enviado!`, 'success');
+                    showToast(`✅ Pedido de "${clienteInfo}" enviado!`, 'success');
                     
                     items.forEach(item => {
                         // Registrar venda por mês
@@ -733,31 +828,15 @@
                                 price: item.price
                             };
                         });
-
-                        // Descontar do estoque (atualiza composição)
-                        updateStockAfterOrder(item);
                     });
 
                     cart = {};
+                    document.getElementById('clienteInfo').value = '';
                     renderCart();
                 }).catch(err => {
                     showToast('❌ Erro: ' + err.message, 'error');
                 });
             }
-        }
-
-        function updateStockAfterOrder(item) {
-            const comp = composicoes[item.name];
-            if (!comp) return;
-
-            Object.entries(comp).forEach(([insumoKey, qtdUsada]) => {
-                const total = qtdUsada * item.quantity;
-                if (insumos[insumoKey]) {
-                    db.ref(`insumos/${insumoKey}/quantidade`).set(
-                        Math.max(0, insumos[insumoKey].quantidade - total)
-                    );
-                }
-            });
         }
 
         // ============= COZINHA =============
@@ -775,7 +854,10 @@
             queue.innerHTML = pending.map(order => `
                 <div class="card ${order.status === 'pending' ? 'warning' : 'success'}">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid var(--border);">
-                        <div style="font-weight: 700; font-size: 18px; color: var(--primary);">Pedido #${order.id.slice(-4)}</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 18px; color: var(--primary);">Pedido #${order.id.slice(-4)}</div>
+                            <div style="font-size: 14px; color: var(--accent); font-weight: 600; margin-top: 4px;">📍 ${order.clienteInfo || 'N/A'}</div>
+                        </div>
                         <div style="font-size: 12px; color: #888;">${order.createdAt}</div>
                     </div>
                     <div>
@@ -789,6 +871,7 @@
                     <div style="display: flex; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
                         ${order.status === 'pending' ? `
                             <button class="btn btn-primary" style="flex: 1;" onclick="updateOrder('${order.id}', 'ready')">✓ Pronto</button>
+                            <button class="btn btn-danger" style="flex: 1;" onclick="cancelOrder('${order.id}')">✕ Cancelar</button>
                         ` : `
                             <button class="btn btn-success" style="flex: 1;" onclick="updateOrder('${order.id}', 'done')">✓ Entregue</button>
                         `}
@@ -799,10 +882,47 @@
 
         function updateOrder(orderId, status) {
             if (db) {
+                const order = orders[orderId];
+                
                 db.ref(`orders/${orderId}/status`).set(status).then(() => {
+                    // Se marcar como "ready" (pronto), descontar do estoque
+                    if (status === 'ready' && order && order.items) {
+                        deductStockForOrder(order);
+                    }
+                    
                     showToast(`✅ ${status === 'ready' ? 'Pronto' : 'Entregue'}`, 'success');
                     renderCozinha();
                 });
+            }
+        }
+
+        function deductStockForOrder(order) {
+            if (!order || !order.items) return;
+
+            order.items.forEach(item => {
+                const comp = composicoes[item.name];
+                if (!comp) return; // Se não tem composição, não desconta
+
+                // Desconta a composição multiplicada pela quantidade
+                Object.entries(comp).forEach(([insumoKey, qtdPorItem]) => {
+                    const totalADescontar = qtdPorItem * item.quantity;
+                    
+                    if (insumos[insumoKey]) {
+                        const novaQtd = Math.max(0, insumos[insumoKey].quantidade - totalADescontar);
+                        db.ref(`insumos/${insumoKey}/quantidade`).set(novaQtd);
+                    }
+                });
+            });
+        }
+
+        function cancelOrder(orderId) {
+            const order = orders[orderId];
+            if (confirm(`Cancelar pedido de "${order.clienteInfo}"?`)) {
+                if (db) {
+                    db.ref(`orders/${orderId}`).remove();
+                    showToast('❌ Pedido cancelado e removido da fila', 'success');
+                    renderCozinha();
+                }
             }
         }
 
@@ -810,10 +930,11 @@
         function switchAdminTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            document.querySelectorAll('#relatorioTab, #estoqueTab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#relatorioTab, #estoqueTab, #atendentesTab').forEach(t => t.classList.remove('active'));
             document.getElementById(tab + 'Tab').classList.add('active');
             
             if (tab === 'relatorio') loadAdminData();
+            else if (tab === 'atendentes') renderAtendentes();
         }
 
         function switchStockTab(tab) {
@@ -890,13 +1011,20 @@
             const ordersList = document.getElementById('monthOrdersList');
             ordersList.innerHTML = monthOrders.map(order => `
                 <div class="card" style="border-left-color: var(--success); margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <div>
-                            <div style="font-weight: 700; color: var(--primary);">Pedido #${order.id.slice(-4)}</div>
+                            <div style="font-weight: 700; color: var(--primary);">
+                                Pedido #${order.id.slice(-4)} - 📍 ${order.clienteInfo || 'N/A'}
+                            </div>
                             <div style="font-size: 12px; color: #888;">${order.createdAt} - ${order.date}</div>
+                            <div style="font-size: 12px; color: #888; margin-top: 4px;">
+                                ${order.items.map(i => `${i.name} (${i.quantity}x)`).join(', ')}
+                            </div>
                         </div>
-                        <div style="color: var(--accent); font-weight: 700; font-size: 16px;">R$ ${order.total.toFixed(2)}</div>
-                        <button class="btn btn-danger" style="padding: 6px 12px; font-size: 11px;" onclick="deleteOrder('${order.id}')">🗑 Deletar</button>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="color: var(--accent); font-weight: 700; font-size: 16px;">R$ ${order.total.toFixed(2)}</div>
+                            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 11px;" onclick="deleteOrder('${order.id}')">🗑 Deletar</button>
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -1100,42 +1228,61 @@
                 const comp = composicoes[item.name] || {};
                 let disponivel = Object.keys(comp).length > 0;
                 let problemas = [];
+                let quantosPode = Infinity;
 
                 Object.entries(comp).forEach(([key, qtdNecessaria]) => {
                     const insumo = insumos[key];
                     if (!insumo) {
                         disponivel = false;
                         problemas.push(`⚠️ ${key} não cadastrado`);
+                        quantosPode = 0;
                     } else if (insumo.quantidade < qtdNecessaria) {
                         disponivel = false;
-                        problemas.push(`❌ ${insumo.nome}: precisa ${qtdNecessaria}${insumo.unidade}, tem ${insumo.quantidade}${insumo.unidade}`);
+                        // Calcula quantos itens podem ser feitos com este insumo
+                        const possivelComEste = Math.floor(insumo.quantidade / qtdNecessaria);
+                        quantosPode = Math.min(quantosPode, possivelComEste);
+                        problemas.push(`❌ ${insumo.nome}: precisa ${qtdNecessaria}${insumo.unidade}, tem ${insumo.quantidade}${insumo.unidade} (${possivelComEste} possível)`);
+                    } else {
+                        // Se tem estoque, calcula o máximo possível com este insumo
+                        const possivelComEste = Math.floor(insumo.quantidade / qtdNecessaria);
+                        quantosPode = Math.min(quantosPode, possivelComEste);
                     }
                 });
 
                 if (Object.keys(comp).length === 0) {
                     disponivel = null; // Sem composição
+                    quantosPode = 0;
+                } else if (disponivel && quantosPode !== Infinity) {
+                    // Se disponível, mostra quantos podem ser feitos
+                    problemas = [`✅ Pode fazer: ${quantosPode} unidades`];
                 }
 
                 items.push({
                     name: item.name,
                     icon: item.icon,
                     disponivel,
-                    problemas
+                    problemas,
+                    quantosPode: quantosPode === Infinity ? 0 : quantosPode
                 });
             });
 
             div.innerHTML = items.map(item => {
                 let bgClass = '';
                 let status = '';
+                let statusColor = '';
+                
                 if (item.disponivel === null) {
                     bgClass = '';
                     status = '⚠️ SEM COMPOSIÇÃO';
+                    statusColor = '#F9A825';
                 } else if (item.disponivel) {
                     bgClass = 'success';
-                    status = '✓ DISPONÍVEL';
+                    status = `✓ DISPONÍVEL (${item.quantosPode} possível)`;
+                    statusColor = 'var(--success)';
                 } else {
                     bgClass = 'warning';
-                    status = '✗ INDISPONÍVEL';
+                    status = `✗ INDISPONÍVEL (${item.quantosPode} possível)`;
+                    statusColor = 'var(--danger)';
                 }
 
                 return `
@@ -1144,7 +1291,7 @@
                             <div style="font-weight: 700; color: var(--primary); font-size: 16px;">
                                 ${item.icon} ${item.name}
                             </div>
-                            <div style="font-weight: 700; color: ${item.disponivel ? 'var(--success)' : item.disponivel === null ? '#F9A825' : 'var(--danger)'};">
+                            <div style="font-weight: 700; color: ${statusColor}; font-size: 14px;">
                                 ${status}
                             </div>
                         </div>
@@ -1178,6 +1325,87 @@
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
                 gap: 12px;
                 margin-bottom: 20px;
+        // ============= ATENDENTES =============
+        function createAtendente() {
+            const name = document.getElementById('atendenteName').value.trim();
+            const email = document.getElementById('atendenteEmail').value.trim();
+
+            if (!name) {
+                showToast('Digite o nome do atendente!', 'error');
+                return;
+            }
+
+            // Gera um ID único (timestamp + random)
+            const id = 'ATD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+            if (db) {
+                db.ref(`atendentes/${id}`).set({
+                    id: id,
+                    nome: name,
+                    email: email || '',
+                    dataCadastro: new Date().toISOString(),
+                    ativo: true
+                }).then(() => {
+                    showToast(`✅ Atendente "${name}" cadastrado com ID: ${id}`, 'success');
+                    document.getElementById('atendenteName').value = '';
+                    document.getElementById('atendenteEmail').value = '';
+                    renderAtendentes();
+                }).catch(err => {
+                    showToast('❌ Erro: ' + err.message, 'error');
+                });
+            }
+        }
+
+        function renderAtendentes() {
+            const lista = document.getElementById('atendentesList');
+            const items = Object.entries(atendentes);
+
+            if (items.length === 0) {
+                lista.innerHTML = '<p style="color: #888;">Nenhum atendente cadastrado</p>';
+                return;
+            }
+
+            lista.innerHTML = items.map(([key, atendente]) => `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <div>
+                            <div style="font-weight: 700; color: var(--primary); font-size: 16px;">
+                                ${atendente.nome}
+                            </div>
+                            <div style="font-size: 13px; color: var(--accent); font-weight: 600; margin-top: 4px;">
+                                ID: ${atendente.id}
+                            </div>
+                            ${atendente.email ? `
+                                <div style="font-size: 12px; color: #888; margin-top: 4px;">
+                                    📧 ${atendente.email}
+                                </div>
+                            ` : ''}
+                            <div style="font-size: 11px; color: #aaa; margin-top: 4px;">
+                                Cadastrado em: ${new Date(atendente.dataCadastro).toLocaleDateString('pt-BR')}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="background: ${atendente.ativo ? 'var(--success)' : 'var(--danger)'}; color: white; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-bottom: 8px;">
+                                ${atendente.ativo ? '✓ Ativo' : '✗ Inativo'}
+                            </div>
+                            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 11px;" onclick="deleteAtendente('${key}')">🗑 Deletar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteAtendente(key) {
+            const atendente = atendentes[key];
+            if (confirm(`Deletar atendente "${atendente.nome}"?`)) {
+                if (db) {
+                    db.ref(`atendentes/${key}`).remove();
+                    showToast('✅ Atendente deletado!', 'success');
+                    renderAtendentes();
+                }
+            }
+        }
+
             }
         `;
         document.head.appendChild(style);
