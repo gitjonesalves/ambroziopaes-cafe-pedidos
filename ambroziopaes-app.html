@@ -3,399 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sistema de Pedidos - Café Ambrózio Paes">
     <meta name="theme-color" content="#556B2F">
-    <title>Café Ambrózio Paes</title>
+    <title>Café Ambrózio Paes - Sistema de Pedidos</title>
     
-    <!-- Firebase SDK v8 (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #556B2F;
             --primary-light: #6B8E23;
-            --primary-dark: #3D4E1F;
-            --primary-lighter: #7CB342;
             --accent: #D4AF37;
-            --accent-light: #E6C74D;
             --accent-dark: #B8960A;
             --success: #7CB342;
             --danger: #D32F2F;
-            --warning: #F9A825;
-            --dark: #2C2C2C;
             --light: #F5F3F0;
             --text: #3D4E1F;
             --border: #A4AC86;
-            --bg-secondary: #EBE8E1;
         }
-
-        html, body {
-            height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--light) 0%, var(--bg-secondary) 100%);
-            color: var(--text);
-        }
-
-        /* ============= HEADER ============= */
-        .header {
-            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: var(--light);
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border-bottom: 3px solid var(--accent);
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .header-subtitle {
-            font-size: 11px;
-            opacity: 0.85;
-            margin-top: 3px;
-            color: var(--accent-light);
-        }
-
-        .logout-btn {
-            background: rgba(212, 175, 55, 0.2);
-            color: var(--accent);
-            border: 2px solid var(--accent);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 12px;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: var(--accent);
-            color: var(--primary);
-        }
-
-        /* ============= CONTENT ============= */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: calc(100vh - 70px);
-        }
-
-        h1, h2 {
-            color: var(--primary);
-            margin-bottom: 20px;
-        }
-
-        h3 {
-            color: var(--primary);
-            margin: 20px 0 15px 0;
-        }
-
-        /* ============= FORMS ============= */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: var(--primary);
-            font-size: 13px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            color: var(--text);
-            background: white;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
-        }
-
-        /* ============= BUTTONS ============= */
-        .btn {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.3s;
-            text-transform: uppercase;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: var(--primary);
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-dark);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #B71C1C;
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #689F38;
-        }
-
-        /* ============= CARDS ============= */
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border-left: 4px solid var(--accent);
-        }
-
-        .card.warning {
-            border-left-color: var(--danger);
-            background: rgba(211, 47, 47, 0.02);
-        }
-
-        .card.success {
-            border-left-color: var(--success);
-            background: rgba(124, 179, 66, 0.02);
-        }
-
-        /* ============= TABS ============= */
-        .tabs {
-            display: flex;
-            gap: 0;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .tab-btn {
-            padding: 12px 20px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-weight: 600;
-            color: #888;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--accent);
-        }
-
-        .tab-btn:hover {
-            color: var(--primary);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* ============= TOAST ============= */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: var(--accent);
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-            max-width: 300px;
-            z-index: 1000;
-            font-weight: 600;
-        }
-
-        .toast.success {
-            background: var(--success);
-            color: white;
-        }
-
-        .toast.error {
-            background: var(--danger);
-            color: white;
-        }
-
-        /* ============= STATS ============= */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, var(--light) 0%, white 100%);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            text-align: center;
-            border-top: 4px solid var(--accent);
-        }
-
-        .stat-label {
-            color: #888;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        /* ============= HIDDEN ============= */
-        .hidden {
-            display: none !important;
-        }
-
-        /* ============= RESPONSIVE ============= */
-        @media (max-width: 768px) {
-            .header {
-                padding: 12px 15px;
-            }
-
-            .container {
-                padding: 15px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        html, body { height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, var(--light) 0%, #EBE8E1 100%); color: var(--text); }
+        .header { background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-bottom: 3px solid var(--accent); }
+        .header-title { font-size: 20px; font-weight: 700; }
+        .logout-btn { background: rgba(212, 175, 55, 0.2); color: var(--accent); border: 2px solid var(--accent); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; transition: all 0.3s; }
+        .logout-btn:hover { background: var(--accent); color: var(--primary); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; min-height: calc(100vh - 70px); }
+        h1 { color: var(--primary); margin-bottom: 20px; font-size: 28px; }
+        h2 { color: var(--primary); margin-bottom: 20px; font-size: 22px; }
+        h3 { color: var(--primary); margin: 20px 0 15px 0; font-size: 18px; }
+        p { color: #666; line-height: 1.6; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--primary); font-size: 13px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text); background: white; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1); }
+        .btn { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.3s; text-transform: uppercase; }
+        .btn-primary { background: var(--accent); color: var(--primary); }
+        .btn-primary:hover { background: var(--accent-dark); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #B71C1C; }
+        .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid var(--accent); }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .menu-item { background: white; border: 2px solid var(--border); border-radius: 12px; padding: 14px; cursor: pointer; transition: all 0.3s; text-align: center; }
+        .menu-item:hover { border-color: var(--accent); box-shadow: 0 6px 18px rgba(212, 175, 55, 0.2); transform: translateY(-3px); }
+        .menu-item-icon { font-size: 32px; margin-bottom: 8px; }
+        .menu-item-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; color: var(--primary); }
+        .menu-item-description { font-size: 11px; color: #888; margin-bottom: 8px; min-height: 20px; line-height: 1.3; }
+        .menu-item-badges { display: flex; gap: 4px; justify-content: center; margin-bottom: 8px; font-size: 11px; }
+        .badge { padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+        .badge-no-sugar { background: rgba(124, 179, 66, 0.1); color: var(--success); }
+        .badge-sugar { background: rgba(211, 47, 47, 0.1); color: var(--danger); }
+        .badge-no-lactose { background: rgba(124, 179, 66, 0.1); color: var(--success); }
+        .badge-lactose { background: rgba(211, 47, 47, 0.1); color: var(--danger); }
+        .menu-item-price { color: var(--accent); font-weight: 700; font-size: 16px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--light); border-radius: 8px; margin-bottom: 8px; font-size: 14px; border-left: 3px solid var(--accent); }
+        .cart-item-name { flex: 1; font-weight: 500; color: var(--primary); }
+        .cart-item-qty { background: var(--primary); color: var(--accent); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; margin: 0 8px; }
+        .remove-btn { background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
+        .tab-btn { padding: 12px 20px; border: none; background: none; cursor: pointer; font-weight: 600; color: #888; border-bottom: 3px solid transparent; transition: all 0.3s; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--accent); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .page { display: none; }
+        .page.show { display: block; }
+        .auth-screen { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 70px); }
+        .auth-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 90%; max-width: 400px; text-align: center; border-top: 4px solid var(--accent); }
+        .auth-card h1 { font-size: 28px; margin-bottom: 10px; }
+        .auth-card .error { color: var(--danger); margin-top: 15px; font-weight: 600; display: none; }
+        .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .home-card { text-align: center; padding: 30px; }
+        .home-card div:first-child { font-size: 48px; margin-bottom: 15px; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: var(--accent); padding: 15px 20px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.2); max-width: 300px; z-index: 1000; font-weight: 600; }
+        .toast.success { background: var(--success); color: white; }
+        .toast.error { background: var(--danger); color: white; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: linear-gradient(135deg, var(--light) 0%, white 100%); border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); text-align: center; border-top: 4px solid var(--accent); }
+        .stat-label { color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: 600; }
+        .stat-value { font-size: 32px; font-weight: 700; color: var(--primary); }
+        .hidden { display: none !important; }
+        .order-card { background: white; border-left: 5px solid var(--accent); border-radius: 12px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .order-card.pending { border-left-color: var(--danger); background: rgba(211, 47, 47, 0.02); }
+        @media (max-width: 768px) { .header { padding: 12px 15px; } .container { padding: 15px; } .menu-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); } h1 { font-size: 24px; } }
     </style>
 </head>
 <body>
-    <!-- HEADER -->
     <div class="header">
-        <div>
-            <div class="header-title">☕ Ambrózio Paes - <span id="roleTitle"></span></div>
-            <div class="header-subtitle" id="headerSubtitle"></div>
-        </div>
-        <button class="logout-btn" onclick="goHome()">🏠 Início</button>
+        <div class="header-title">☕ Ambrózio Paes - <span id="roleTitle">Home</span></div>
+        <button class="logout-btn" onclick="goHome()" id="backBtn" style="display: none;">🏠 Início</button>
     </div>
 
-    <!-- CONTENT -->
-    <div class="container" id="mainContent">
-    <!-- AUTH SCREEN -->
-    <div id="adminLoginPage" class="page" style="display: none; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 90%; max-width: 400px; text-align: center; border-top: 4px solid var(--accent);">
-            <div style="font-size: 48px; margin-bottom: 15px;">🔐</div>
-            <h1 style="font-size: 28px; margin-bottom: 10px; color: var(--primary);">Acesso Admin</h1>
-            <p style="color: #666; margin-bottom: 30px; font-size: 14px;">Digite a senha para continuar</p>
-            
-            <div class="form-group">
-                <label style="text-align: left;">Senha:</label>
-                <input type="password" id="adminPassword" placeholder="••••••••" style="font-size: 18px;">
-            </div>
-            
-            <button class="btn btn-primary" style="width: 100%; margin-bottom: 15px;" onclick="validateAdminPassword()">Entrar</button>
-            <button class="btn" style="width: 100%; background: var(--border); color: var(--primary);" onclick="goHome()">← Voltar</button>
-            
-            <div id="adminLoginError" style="color: var(--danger); margin-top: 15px; font-weight: 600; display: none;"></div>
-        </div>
-    </div>
+    <div class="container">
 
-    <!-- HOME -->
-    <div id="homePage" class="page">
+        <!-- HOME -->
+        <div id="homePage" class="page show">
             <h1>Bem-vindo ao Sistema de Pedidos</h1>
-            <p style="margin-bottom: 30px; color: #666; font-size: 16px;">Escolha seu acesso:</p>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                <div class="card" style="text-align: center; padding: 30px;">
-                    <div style="font-size: 48px; margin-bottom: 15px;">👤</div>
+            <p style="margin-bottom: 30px; font-size: 16px;">Escolha seu acesso:</p>
+            <div class="home-grid">
+                <div class="card home-card">
+                    <div>👤</div>
                     <h3>Atendente</h3>
-                    <p style="color: #666; margin-bottom: 20px;">Receber pedidos dos clientes</p>
+                    <p style="margin-bottom: 20px;">Receber pedidos dos clientes</p>
                     <button class="btn btn-primary" onclick="goToAtendente()">Acessar</button>
                 </div>
-
-                <div class="card" style="text-align: center; padding: 30px;">
-                    <div style="font-size: 48px; margin-bottom: 15px;">👨‍🍳</div>
+                <div class="card home-card">
+                    <div>👨‍🍳</div>
                     <h3>Cozinha</h3>
-                    <p style="color: #666; margin-bottom: 20px;">Preparar pedidos</p>
+                    <p style="margin-bottom: 20px;">Preparar pedidos</p>
                     <button class="btn btn-primary" onclick="goToCozinha()">Acessar</button>
                 </div>
-
-                <div class="card" style="text-align: center; padding: 30px;">
-                    <div style="font-size: 48px; margin-bottom: 15px;">📊</div>
+                <div class="card home-card">
+                    <div>📊</div>
                     <h3>Admin</h3>
-                    <p style="color: #666; margin-bottom: 20px;">Relatórios e Estoque</p>
+                    <p style="margin-bottom: 20px;">Relatórios e Estoque</p>
                     <button class="btn btn-primary" onclick="goToAdmin()">Acessar</button>
                 </div>
             </div>
         </div>
 
+        <!-- AUTH -->
+        <div id="authPage" class="auth-screen hidden">
+            <div class="auth-card">
+                <div style="font-size: 48px; margin-bottom: 15px;">🔐</div>
+                <h1>Acesso Admin</h1>
+                <p style="margin-bottom: 30px;">Digite a senha para continuar</p>
+                <div class="form-group">
+                    <label>Senha:</label>
+                    <input type="password" id="adminPassword" placeholder="••••••••" style="font-size: 18px;">
+                </div>
+                <button class="btn btn-primary" style="width: 100%; margin-bottom: 15px;" onclick="validateAdminPassword()">Entrar</button>
+                <button class="btn" style="width: 100%; background: var(--border); color: var(--primary);" onclick="goHome()">← Voltar</button>
+                <div id="adminError" class="error"></div>
+            </div>
+        </div>
+
         <!-- ATENDENTE -->
-        <div id="atendentePage" class="page hidden">
+        <div id="atendentePage" class="hidden">
             <h2>Cardápio</h2>
-            
-            <div id="bebidas">
-                <h3>🥤 Bebidas</h3>
-                <div id="bebidas-grid" class="menu-grid"></div>
-            </div>
-
-            <div id="comidas">
-                <h3>🥐 Comidas & Salgados</h3>
-                <div id="comidas-grid" class="menu-grid"></div>
-            </div>
-
-            <div id="sobremesas">
-                <h3>🍰 Sobremesas & Doces</h3>
-                <div id="sobremesas-grid" class="menu-grid"></div>
-            </div>
-
+            <h3>🥤 Bebidas</h3>
+            <div id="bebidas-grid" class="menu-grid"></div>
+            <h3>🥐 Comidas & Salgados</h3>
+            <div id="comidas-grid" class="menu-grid"></div>
+            <h3>🍰 Sobremesas & Doces</h3>
+            <div id="sobremesas-grid" class="menu-grid"></div>
             <div class="card">
                 <div style="font-weight: 700; margin-bottom: 15px; color: var(--primary); font-size: 16px;">🛒 Seu Pedido</div>
-                
                 <div class="form-group">
                     <label>Mesa ou Nome do Cliente</label>
-                    <input type="text" id="clienteInfo" placeholder="ex: Mesa 5 ou João Silva" style="font-size: 16px;">
+                    <input type="text" id="clienteInfo" placeholder="ex: Mesa 5 ou João Silva">
                 </div>
-
                 <div id="cartItems"></div>
                 <div style="border-top: 2px solid var(--border); padding-top: 12px; margin-top: 12px; display: flex; justify-content: space-between; font-weight: 700; color: var(--primary);">
                     <span>Total:</span>
@@ -406,29 +161,28 @@
         </div>
 
         <!-- COZINHA -->
-        <div id="cozinhaPage" class="page hidden">
+        <div id="cozinhaPage" class="hidden">
             <h2>📋 Fila de Pedidos</h2>
             <div id="kitchenQueue"></div>
         </div>
 
         <!-- ADMIN -->
-        <div id="adminPage" class="page hidden">
+        <div id="adminPage" class="hidden">
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchAdminTab('relatorio')">📊 Relatório</button>
                 <button class="tab-btn" onclick="switchAdminTab('estoque')">📦 Estoque</button>
+                <button class="tab-btn" onclick="switchAdminTab('atendentes')">👥 Atendentes</button>
             </div>
 
             <!-- RELATÓRIO -->
             <div id="relatorioTab" class="tab-content active">
                 <h2>Relatório de Vendas por Mês</h2>
-                
                 <div class="form-group" style="max-width: 300px;">
                     <label>Selecione o Mês:</label>
                     <select id="monthSelector" onchange="loadMonthReport()">
                         <option value="">Carregando...</option>
                     </select>
                 </div>
-
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-label">Total de Pedidos</div>
@@ -443,12 +197,10 @@
                         <div class="stat-value" id="monthAvgTicket">R$ 0</div>
                     </div>
                 </div>
-
                 <div class="card">
                     <h3 style="margin-top: 0;">Produtos Mais Vendidos</h3>
                     <div id="monthSalesList"></div>
                 </div>
-
                 <div class="card">
                     <h3 style="margin-top: 0;">Detalhes dos Pedidos</h3>
                     <div id="monthOrdersList"></div>
@@ -463,85 +215,55 @@
                     <button class="tab-btn" onclick="switchStockTab('disponibilidade')">✓ Disponibilidade</button>
                 </div>
 
-                <!-- INSUMOS -->
                 <div id="insumosTab" class="tab-content active">
                     <h2>Gestão de Insumos</h2>
                     <div class="card">
                         <h3 style="margin-top: 0;">Adicionar Insumo</h3>
-                        <div class="form-group">
-                            <label>Nome do Insumo</label>
-                            <input type="text" id="insumoNome" placeholder="ex: Café em Grão">
-                        </div>
+                        <div class="form-group"><label>Nome do Insumo</label><input type="text" id="insumoNome" placeholder="ex: Café em Grão"></div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                            <div class="form-group">
-                                <label>Quantidade</label>
-                                <input type="number" id="insumoCantidade" placeholder="500" step="0.1" min="0">
-                            </div>
-                            <div class="form-group">
-                                <label>Unidade</label>
-                                <input type="text" id="insumoUnidade" placeholder="g, ml, L, kg">
-                            </div>
+                            <div class="form-group"><label>Quantidade</label><input type="number" id="insumoCantidade" placeholder="500" step="0.1" min="0"></div>
+                            <div class="form-group"><label>Unidade</label><input type="text" id="insumoUnidade" placeholder="g, ml, L, kg"></div>
                         </div>
                         <button class="btn btn-primary" style="width: 100%;" onclick="addInsumo()">+ Adicionar Insumo</button>
                     </div>
-
                     <h3>Insumos em Estoque</h3>
                     <div id="insumosLista"></div>
                 </div>
 
-                <!-- COMPOSIÇÃO -->
                 <div id="composicaoTab" class="tab-content">
                     <h2>Composição de Itens</h2>
                     <div class="card">
                         <h3 style="margin-top: 0;">Definir Composição</h3>
-                        <div class="form-group">
-                            <label>Selecione o Item</label>
-                            <select id="itemSelect" onchange="loadItemComposition()">
-                                <option value="">-- Escolha um item --</option>
-                            </select>
-                        </div>
-                        <div id="compositionForm" class="hidden">
-                            <div id="compositionInputs"></div>
-                            <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="saveComposicao()">Salvar Composição</button>
-                        </div>
+                        <div class="form-group"><label>Selecione o Item</label><select id="itemSelect" onchange="loadItemComposition()"><option value="">-- Escolha um item --</option></select></div>
+                        <div id="compositionForm" class="hidden"><div id="compositionInputs"></div><button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="saveComposicao()">Salvar Composição</button></div>
                     </div>
-
                     <h3>Composições Salvas</h3>
                     <div id="composicoesList"></div>
                 </div>
 
-                <!-- DISPONIBILIDADE -->
                 <div id="disponibilidadeTab" class="tab-content">
                     <h2>Disponibilidade de Itens</h2>
                     <div id="availabilityList"></div>
                 </div>
+            </div>
 
-                <!-- ATENDENTES -->
-                <div id="atendentesTab" class="tab-content">
-                    <h2>Gestão de Atendentes</h2>
-                    
-                    <div class="card">
-                        <h3 style="margin-top: 0;">Cadastrar Novo Atendente</h3>
-                        <div class="form-group">
-                            <label>Nome do Atendente</label>
-                            <input type="text" id="atendenteName" placeholder="ex: João Silva">
-                        </div>
-                        <div class="form-group">
-                            <label>Email (opcional)</label>
-                            <input type="email" id="atendenteEmail" placeholder="joao@cafe.com">
-                        </div>
-                        <button class="btn btn-primary" style="width: 100%;" onclick="createAtendente()">+ Cadastrar Atendente</button>
-                    </div>
-
-                    <h3>Atendentes Cadastrados</h3>
-                    <div id="atendentesList"></div>
+            <!-- ATENDENTES -->
+            <div id="atendentesTab" class="tab-content">
+                <h2>Gestão de Atendentes</h2>
+                <div class="card">
+                    <h3 style="margin-top: 0;">Cadastrar Novo Atendente</h3>
+                    <div class="form-group"><label>Nome do Atendente</label><input type="text" id="atendenteName" placeholder="ex: João Silva"></div>
+                    <div class="form-group"><label>Email (opcional)</label><input type="email" id="atendenteEmail" placeholder="joao@cafe.com"></div>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="createAtendente()">+ Cadastrar Atendente</button>
                 </div>
+                <h3>Atendentes Cadastrados</h3>
+                <div id="atendentesList"></div>
             </div>
         </div>
+
     </div>
 
     <script>
-        // ============= CONFIG =============
         const firebaseConfig = {
             apiKey: "AIzaSyAKZk82L4fx2hnvCskXcjIgiYnvEMdglWg",
             authDomain: "ambroziopaes.firebaseapp.com",
@@ -551,345 +273,167 @@
             messagingSenderId: "237755790666",
             appId: "1:237755790666:web:5bc2ffabf6631e6a2dfdb3"
         };
-
-        // ============= STATE =============
-        let currentPage = null;
-        let cart = {};
-        let db = null;
-        let orders = {};
-        let salesData = {};
-        let insumos = {};
-        let composicoes = {};
-        let atendentes = {};
+        const ADMIN_PASSWORD = "cafe123";
+        let currentPage = null, cart = {}, db = null, orders = {}, insumos = {}, composicoes = {}, atendentes = {};
         
-        // ============= ADMIN CONFIG =============
-        const ADMIN_PASSWORD = "cafe123"; // Mude isso para uma senha segura!
-
         const MENU = {
             'bebidas': [
-                { name: 'Suco Natural', icon: '🧃', price: 7.00, group: 'bebidas', description: 'Suco fresco natural', sugar: false, lactose: false },
-                { name: 'Açaí', icon: '🍇', price: 12.00, group: 'bebidas', description: 'Açaí com granola', sugar: true, lactose: false },
-                { name: 'Vitamina', icon: '🥤', price: 10.00, group: 'bebidas', description: 'Vitamina de frutas com leite', sugar: true, lactose: true },
-                { name: 'Água', icon: '💧', price: 2.00, group: 'bebidas', description: 'Água filtrada', sugar: false, lactose: false },
-                { name: 'Refrigerante', icon: '🥤', price: 5.00, group: 'bebidas', description: 'Refrigerante gelado', sugar: true, lactose: false },
-                { name: 'Café Coado', icon: '☕', price: 5.00, group: 'bebidas', description: 'Café coado tradicional', sugar: false, lactose: false },
-                { name: 'Espresso', icon: '☕', price: 6.00, group: 'bebidas', description: 'Espresso duplo intenso', sugar: false, lactose: false },
-                { name: 'Cappuccino', icon: '🥛', price: 8.00, group: 'bebidas', description: 'Espresso com leite vaporizado e canela', sugar: true, lactose: true },
-                { name: 'Latte', icon: '🥛', price: 8.50, group: 'bebidas', description: 'Espresso com bastante leite quente', sugar: true, lactose: true },
-                { name: 'Café com Leite', icon: '☕', price: 6.00, group: 'bebidas', description: 'Café coado com leite quente', sugar: true, lactose: true },
+                { name: 'Suco Natural', icon: '🧃', price: 7.00, description: 'Suco fresco natural', sugar: false, lactose: false },
+                { name: 'Açaí', icon: '🍇', price: 12.00, description: 'Açaí com granola', sugar: true, lactose: false },
+                { name: 'Vitamina', icon: '🥤', price: 10.00, description: 'Vitamina de frutas com leite', sugar: true, lactose: true },
+                { name: 'Água', icon: '💧', price: 2.00, description: 'Água filtrada', sugar: false, lactose: false },
+                { name: 'Refrigerante', icon: '🥤', price: 5.00, description: 'Refrigerante gelado', sugar: true, lactose: false },
+                { name: 'Café Coado', icon: '☕', price: 5.00, description: 'Café coado tradicional', sugar: false, lactose: false },
+                { name: 'Espresso', icon: '☕', price: 6.00, description: 'Espresso duplo intenso', sugar: false, lactose: false },
+                { name: 'Cappuccino', icon: '🥛', price: 8.00, description: 'Espresso com leite vaporizado e canela', sugar: true, lactose: true },
+                { name: 'Latte', icon: '🥛', price: 8.50, description: 'Espresso com bastante leite quente', sugar: true, lactose: true },
+                { name: 'Café com Leite', icon: '☕', price: 6.00, description: 'Café coado com leite quente', sugar: true, lactose: true },
             ],
             'comidas': [
-                { name: 'Croissant', icon: '🥐', price: 8.00, group: 'comidas', description: 'Croissant fresco e crocante', sugar: true, lactose: true },
-                { name: 'Pão de Queijo', icon: '🥖', price: 5.00, group: 'comidas', description: 'Pão de queijo caseiro', sugar: false, lactose: true },
-                { name: 'Bolo Salgado', icon: '🍰', price: 6.00, group: 'comidas', description: 'Bolo salgado do dia', sugar: false, lactose: true },
-                { name: 'Sanduíche Natural', icon: '🥪', price: 10.00, group: 'comidas', description: 'Pão integral com proteína e legumes', sugar: false, lactose: false },
-                { name: 'Pastel', icon: '🥟', price: 7.00, group: 'comidas', description: 'Pastel quente crocante', sugar: false, lactose: false },
+                { name: 'Croissant', icon: '🥐', price: 8.00, description: 'Croissant fresco e crocante', sugar: true, lactose: true },
+                { name: 'Pão de Queijo', icon: '🥖', price: 5.00, description: 'Pão de queijo caseiro', sugar: false, lactose: true },
+                { name: 'Bolo Salgado', icon: '🍰', price: 6.00, description: 'Bolo salgado do dia', sugar: false, lactose: true },
+                { name: 'Sanduíche Natural', icon: '🥪', price: 10.00, description: 'Pão integral com proteína', sugar: false, lactose: false },
+                { name: 'Pastel', icon: '🥟', price: 7.00, description: 'Pastel quente crocante', sugar: false, lactose: false },
             ],
             'sobremesas': [
-                { name: 'Bolo de Chocolate', icon: '🍰', price: 6.00, group: 'sobremesas', description: 'Bolo de chocolate fofinho', sugar: true, lactose: true },
-                { name: 'Brownie', icon: '🍫', price: 7.00, group: 'sobremesas', description: 'Brownie de chocolate belga', sugar: true, lactose: true },
-                { name: 'Torta de Frutas', icon: '🍪', price: 8.00, group: 'sobremesas', description: 'Torta com frutas frescas', sugar: true, lactose: true },
-                { name: 'Biscoito Doce', icon: '🍪', price: 4.00, group: 'sobremesas', description: 'Biscoitos amanteigados doces', sugar: true, lactose: true },
-                { name: 'Pudim', icon: '🍮', price: 6.00, group: 'sobremesas', description: 'Pudim de leite condensado com calda', sugar: true, lactose: true },
+                { name: 'Bolo de Chocolate', icon: '🍰', price: 6.00, description: 'Bolo de chocolate fofinho', sugar: true, lactose: true },
+                { name: 'Brownie', icon: '🍫', price: 7.00, description: 'Brownie de chocolate belga', sugar: true, lactose: true },
+                { name: 'Torta de Frutas', icon: '🍪', price: 8.00, description: 'Torta com frutas frescas', sugar: true, lactose: true },
+                { name: 'Biscoito Doce', icon: '🍪', price: 4.00, description: 'Biscoitos amanteigados', sugar: true, lactose: true },
+                { name: 'Pudim', icon: '🍮', price: 6.00, description: 'Pudim com calda de caramelo', sugar: true, lactose: true },
             ],
         };
 
-        // ============= FIREBASE INIT =============
         function initFirebase() {
             try {
-                if (firebase.apps.length === 0) {
-                    firebase.initializeApp(firebaseConfig);
-                }
+                if (firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
                 db = firebase.database();
-                
-                db.ref('orders').on('value', (snapshot) => {
-                    orders = snapshot.val() || {};
-                });
-
-                db.ref('sales').on('value', (snapshot) => {
-                    salesData = snapshot.val() || {};
-                });
-
-                db.ref('insumos').on('value', (snapshot) => {
-                    insumos = snapshot.val() || {};
-                });
-
-                db.ref('composicoes').on('value', (snapshot) => {
-                    composicoes = snapshot.val() || {};
-                });
-
-                db.ref('atendentes').on('value', (snapshot) => {
-                    atendentes = snapshot.val() || {};
-                });
-            } catch (error) {
-                console.error('Firebase error:', error);
-                showToast('Erro ao conectar', 'error');
-            }
+                db.ref('orders').on('value', s => { orders = s.val() || {}; if (currentPage === 'cozinhaPage') renderCozinha(); });
+                db.ref('insumos').on('value', s => { insumos = s.val() || {}; });
+                db.ref('composicoes').on('value', s => { composicoes = s.val() || {}; });
+                db.ref('atendentes').on('value', s => { atendentes = s.val() || {}; });
+            } catch (e) { showToast('Erro Firebase', 'error'); }
         }
 
-        // ============= NAVIGATION =============
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-            document.getElementById(pageId).classList.remove('hidden');
-            currentPage = pageId;
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
+            document.getElementById(id).classList.add('show');
+            currentPage = id;
+            document.getElementById('backBtn').style.display = id === 'homePage' ? 'none' : 'block';
+            if (id === 'homePage') document.getElementById('roleTitle').textContent = 'Home';
         }
 
-        function goHome() {
-            showPage('homePage');
-            document.getElementById('roleTitle').textContent = 'Home';
-            document.getElementById('headerSubtitle').textContent = '';
-        }
-
-        function goToAtendente() {
-            initFirebase();
-            showPage('atendentePage');
-            document.getElementById('roleTitle').textContent = '👤 Atendente';
-            document.getElementById('headerSubtitle').textContent = 'Novo pedido';
-            renderAtendente();
-        }
-
-        function goToCozinha() {
-            initFirebase();
-            showPage('cozinhaPage');
-            document.getElementById('roleTitle').textContent = '👨‍🍳 Cozinha';
-            document.getElementById('headerSubtitle').textContent = 'Pedidos em tempo real';
-            renderCozinha();
-            setInterval(renderCozinha, 2000);
-        }
-
-        function goToAdmin() {
-            showPage('adminLoginPage');
-            document.getElementById('adminPassword').focus();
-            document.getElementById('adminPassword').value = '';
-            document.getElementById('adminLoginError').style.display = 'none';
-        }
-
+        function goHome() { showPage('homePage'); }
+        function goToAtendente() { initFirebase(); showPage('atendentePage'); document.getElementById('roleTitle').textContent = '👤 Atendente'; renderAtendente(); }
+        function goToCozinha() { initFirebase(); showPage('cozinhaPage'); document.getElementById('roleTitle').textContent = '👨‍🍳 Cozinha'; renderCozinha(); setInterval(renderCozinha, 2000); }
+        function goToAdmin() { showPage('authPage'); document.getElementById('adminPassword').focus(); }
         function validateAdminPassword() {
-            const password = document.getElementById('adminPassword').value;
-            if (password === ADMIN_PASSWORD) {
-                document.getElementById('adminLoginError').style.display = 'none';
-                accessAdminPanel();
+            const pwd = document.getElementById('adminPassword').value;
+            if (pwd === ADMIN_PASSWORD) {
+                document.getElementById('adminError').style.display = 'none';
+                initFirebase();
+                showPage('adminPage');
+                document.getElementById('roleTitle').textContent = '📊 Admin';
+                loadAdminData();
             } else {
-                document.getElementById('adminLoginError').textContent = '❌ Senha incorreta!';
-                document.getElementById('adminLoginError').style.display = 'block';
+                document.getElementById('adminError').textContent = '❌ Senha incorreta!';
+                document.getElementById('adminError').style.display = 'block';
                 document.getElementById('adminPassword').value = '';
-                document.getElementById('adminPassword').focus();
             }
         }
 
-        function accessAdminPanel() {
-            initFirebase();
-            showPage('adminPage');
-            document.getElementById('roleTitle').textContent = '📊 Admin';
-            document.getElementById('headerSubtitle').textContent = 'Relatórios, Estoque e Atendentes';
-            loadAdminData();
-        }
-
-        // ============= ATENDENTE =============
         function renderAtendente() {
-            const groups = ['bebidas', 'comidas', 'sobremesas'];
-            groups.forEach(group => {
+            ['bebidas', 'comidas', 'sobremesas'].forEach(group => {
                 const grid = document.getElementById(`${group}-grid`);
                 grid.innerHTML = '';
                 MENU[group].forEach(item => {
                     const div = document.createElement('div');
-                    div.style.cssText = `
-                        background: white;
-                        border: 2px solid var(--border);
-                        border-radius: 12px;
-                        padding: 16px;
-                        cursor: pointer;
-                        transition: all 0.3s;
-                        text-align: center;
-                    `;
-                    div.onmouseover = () => {
-                        div.style.borderColor = 'var(--accent)';
-                        div.style.transform = 'translateY(-3px)';
-                    };
-                    div.onmouseout = () => {
-                        div.style.borderColor = 'var(--border)';
-                        div.style.transform = 'translateY(0)';
-                    };
+                    div.className = 'menu-item';
                     div.onclick = () => addToCart(item);
-                    
-                    const sugarBadge = item.sugar ? '🍬' : '0️⃣ Sem Açúcar';
-                    const lactoseBadge = item.lactose ? '🥛' : '🌱 Sem Lactose';
-                    
+                    const sugarLabel = item.sugar ? '🍬' : '0️⃣';
+                    const lactoseLabel = item.lactose ? '🥛' : '🌱';
                     div.innerHTML = `
-                        <div style="font-size: 32px; margin-bottom: 8px;">${item.icon}</div>
-                        <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px; color: var(--primary);">${item.name}</div>
-                        <div style="font-size: 11px; color: #888; margin-bottom: 8px; min-height: 22px; line-height: 1.3;">${item.description}</div>
-                        <div style="display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; font-size: 12px;">
-                            <span style="background: ${item.sugar ? 'rgba(211, 47, 47, 0.1)' : 'rgba(124, 179, 66, 0.1)'}; color: ${item.sugar ? 'var(--danger)' : 'var(--success)'}; padding: 2px 6px; border-radius: 4px; font-weight: 600;">
-                                ${sugarBadge}
-                            </span>
-                            <span style="background: ${item.lactose ? 'rgba(211, 47, 47, 0.1)' : 'rgba(124, 179, 66, 0.1)'}; color: ${item.lactose ? 'var(--danger)' : 'var(--success)'}; padding: 2px 6px; border-radius: 4px; font-weight: 600;">
-                                ${lactoseBadge}
-                            </span>
+                        <div class="menu-item-icon">${item.icon}</div>
+                        <div class="menu-item-name">${item.name}</div>
+                        <div class="menu-item-description">${item.description}</div>
+                        <div class="menu-item-badges">
+                            <span class="badge ${item.sugar ? 'badge-sugar' : 'badge-no-sugar'}">${sugarLabel}</span>
+                            <span class="badge ${item.lactose ? 'badge-lactose' : 'badge-no-lactose'}">${lactoseLabel}</span>
                         </div>
-                        <div style="color: var(--accent); font-weight: 700; font-size: 16px; margin-bottom: 8px;">R$ ${item.price.toFixed(2)}</div>
-                        <div id="qty-${item.name}" style="font-size: 11px; color: #888; background: rgba(85, 107, 47, 0.1); padding: 4px 8px; border-radius: 6px; display: inline-block;"></div>
+                        <div class="menu-item-price">R$ ${item.price.toFixed(2)}</div>
                     `;
                     grid.appendChild(div);
                 });
             });
-
             renderCart();
         }
 
-        function addToCart(item) {
-            const key = item.name;
-            if (!cart[key]) {
-                cart[key] = { ...item, quantity: 0 };
-            }
-            cart[key].quantity++;
-            renderCart();
-        }
-
+        function addToCart(item) { if (!cart[item.name]) cart[item.name] = {...item, quantity: 0}; cart[item.name].quantity++; renderCart(); }
+        function removeFromCart(name) { delete cart[name]; renderCart(); }
         function renderCart() {
-            const cartItems = document.getElementById('cartItems');
-            const submitBtn = document.getElementById('submitBtn');
-            const items = Object.values(cart).filter(item => item.quantity > 0);
-
-            Object.keys(cart).forEach(key => {
-                const qty = cart[key].quantity;
-                const el = document.getElementById(`qty-${key}`);
-                if (el) {
-                    el.textContent = qty > 0 ? `${qty}x` : '';
-                }
-            });
-
-            if (items.length === 0) {
-                cartItems.innerHTML = '<p style="color: #888; text-align: center; padding: 20px;">Selecione itens do cardápio</p>';
-                submitBtn.disabled = true;
-                document.getElementById('cartTotal').textContent = 'R$ 0,00';
-                return;
-            }
-
+            const items = Object.values(cart).filter(i => i.quantity > 0);
+            const el = document.getElementById('cartItems');
+            if (items.length === 0) { el.innerHTML = '<p style="color: #888; text-align: center; padding: 20px;">Selecione itens</p>'; document.getElementById('submitBtn').disabled = true; document.getElementById('cartTotal').textContent = 'R$ 0,00'; return; }
             let total = 0;
-            cartItems.innerHTML = items.map(item => {
-                const subtotal = item.price * item.quantity;
-                total += subtotal;
-                return `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--light); border-radius: 8px; margin-bottom: 8px; font-size: 14px; border-left: 3px solid var(--accent);">
-                        <span style="flex: 1; font-weight: 500; color: var(--primary);">${item.name}</span>
-                        <span style="background: var(--primary); color: var(--accent); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; margin: 0 8px;">${item.quantity}</span>
-                        <button style="background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;" onclick="removeFromCart('${item.name}')">✕</button>
-                    </div>
-                `;
-            }).join('');
-
+            el.innerHTML = items.map(item => { total += item.price * item.quantity; return `<div class="cart-item"><span class="cart-item-name">${item.name}</span><span class="cart-item-qty">${item.quantity}</span><button class="remove-btn" onclick="removeFromCart('${item.name}')">✕</button></div>`; }).join('');
             document.getElementById('cartTotal').textContent = `R$ ${total.toFixed(2)}`;
-            submitBtn.disabled = false;
-        }
-
-        function removeFromCart(name) {
-            delete cart[name];
-            renderCart();
+            document.getElementById('submitBtn').disabled = false;
         }
 
         function submitOrder() {
-            const items = Object.values(cart).filter(item => item.quantity > 0);
-            const clienteInfo = document.getElementById('clienteInfo').value.trim();
-            
-            if (!clienteInfo) {
-                showToast('Digite o número da mesa ou nome!', 'error');
-                return;
-            }
-
+            const items = Object.values(cart).filter(i => i.quantity > 0);
+            const cliente = document.getElementById('clienteInfo').value.trim();
+            if (!cliente) { showToast('Digite mesa ou nome!', 'error'); return; }
             if (items.length === 0) return;
-
             const orderId = Date.now().toString();
-            const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const total = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
             const month = new Date().toISOString().slice(0, 7);
-
             const orderData = {
-                id: orderId,
-                clienteInfo: clienteInfo,
-                items: items.map(item => ({ name: item.name, quantity: item.quantity, price: item.price })),
-                total: total,
-                status: 'pending',
-                createdAt: new Date().toLocaleTimeString('pt-BR'),
-                timestamp: Date.now(),
-                date: new Date().toISOString().split('T')[0],
-                month: month
+                id: orderId, clienteInfo: cliente, items: items.map(i => ({name: i.name, quantity: i.quantity, price: i.price})),
+                total, status: 'pending', createdAt: new Date().toLocaleTimeString('pt-BR'), timestamp: Date.now(),
+                date: new Date().toISOString().split('T')[0], month
             };
-
             if (db) {
                 db.ref(`orders/${orderId}`).set(orderData).then(() => {
-                    showToast(`✅ Pedido de "${clienteInfo}" enviado!`, 'success');
-                    
+                    showToast(`✅ Pedido de "${cliente}" enviado!`, 'success');
                     items.forEach(item => {
-                        // Registrar venda por mês
-                        db.ref(`salesByMonth/${month}/${item.name}`).transaction(current => {
-                            return {
-                                qty: (current?.qty || 0) + item.quantity,
-                                total: (current?.total || 0) + (item.price * item.quantity),
-                                price: item.price
-                            };
-                        });
+                        db.ref(`salesByMonth/${month}/${item.name}`).transaction(current => ({
+                            qty: (current?.qty || 0) + item.quantity,
+                            total: (current?.total || 0) + (item.price * item.quantity),
+                            price: item.price
+                        }));
                     });
-
                     cart = {};
                     document.getElementById('clienteInfo').value = '';
                     renderCart();
-                }).catch(err => {
-                    showToast('❌ Erro: ' + err.message, 'error');
-                });
+                }).catch(e => showToast('Erro: ' + e.message, 'error'));
             }
         }
 
-        // ============= COZINHA =============
         function renderCozinha() {
             const queue = document.getElementById('kitchenQueue');
-            const pending = Object.values(orders)
-                .filter(o => o.status !== 'done')
-                .sort((a, b) => a.timestamp - b.timestamp);
-
-            if (pending.length === 0) {
-                queue.innerHTML = '<p style="color: #888; text-align: center; padding: 40px 20px;">Nenhum pedido no momento</p>';
-                return;
-            }
-
+            const pending = Object.values(orders).filter(o => o.status !== 'done').sort((a, b) => a.timestamp - b.timestamp);
+            if (pending.length === 0) { queue.innerHTML = '<p style="color: #888; text-align: center; padding: 40px 20px;">Nenhum pedido</p>'; return; }
             queue.innerHTML = pending.map(order => `
-                <div class="card ${order.status === 'pending' ? 'warning' : 'success'}">
+                <div class="order-card ${order.status === 'pending' ? 'pending' : ''}">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid var(--border);">
-                        <div>
-                            <div style="font-weight: 700; font-size: 18px; color: var(--primary);">Pedido #${order.id.slice(-4)}</div>
-                            <div style="font-size: 14px; color: var(--accent); font-weight: 600; margin-top: 4px;">📍 ${order.clienteInfo || 'N/A'}</div>
-                        </div>
+                        <div><div style="font-weight: 700; font-size: 18px; color: var(--primary);">Pedido #${order.id.slice(-4)}</div><div style="font-size: 14px; color: var(--accent); font-weight: 600; margin-top: 4px;">📍 ${order.clienteInfo || 'N/A'}</div></div>
                         <div style="font-size: 12px; color: #888;">${order.createdAt}</div>
                     </div>
-                    <div>
-                        ${order.items.map(item => `
-                            <div style="padding: 8px 0; font-size: 14px; display: flex; justify-content: space-between; color: var(--primary);">
-                                <span style="flex: 1; font-weight: 500;">${item.name}</span>
-                                <span style="background: var(--primary); color: var(--accent); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px;">${item.quantity}</span>
-                            </div>
-                        `).join('')}
-                    </div>
+                    <div>${order.items.map(item => `<div style="padding: 8px 0; font-size: 14px; display: flex; justify-content: space-between; color: var(--primary);"><span style="flex: 1; font-weight: 500;">${item.name}</span><span style="background: var(--primary); color: var(--accent); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px;">${item.quantity}</span></div>`).join('')}</div>
                     <div style="display: flex; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
-                        ${order.status === 'pending' ? `
-                            <button class="btn btn-primary" style="flex: 1;" onclick="updateOrder('${order.id}', 'ready')">✓ Pronto</button>
-                            <button class="btn btn-danger" style="flex: 1;" onclick="cancelOrder('${order.id}')">✕ Cancelar</button>
-                        ` : `
-                            <button class="btn btn-success" style="flex: 1;" onclick="updateOrder('${order.id}', 'done')">✓ Entregue</button>
-                        `}
+                        ${order.status === 'pending' ? `<button class="btn btn-primary" style="flex: 1;" onclick="updateOrder('${order.id}', 'ready')">✓ Pronto</button><button class="btn btn-danger" style="flex: 1;" onclick="cancelOrder('${order.id}')">✕ Cancelar</button>` : `<button class="btn" style="flex: 1; background: var(--success); color: white;" onclick="updateOrder('${order.id}', 'done')">✓ Entregue</button>`}
                     </div>
                 </div>
             `).join('');
         }
 
-        function updateOrder(orderId, status) {
+        function updateOrder(id, status) {
             if (db) {
-                const order = orders[orderId];
-                
-                db.ref(`orders/${orderId}/status`).set(status).then(() => {
-                    // Se marcar como "ready" (pronto), descontar do estoque
-                    if (status === 'ready' && order && order.items) {
-                        deductStockForOrder(order);
-                    }
-                    
+                const order = orders[id];
+                db.ref(`orders/${id}/status`).set(status).then(() => {
+                    if (status === 'ready' && order?.items) deductStockForOrder(order);
                     showToast(`✅ ${status === 'ready' ? 'Pronto' : 'Entregue'}`, 'success');
                     renderCozinha();
                 });
@@ -897,44 +441,33 @@
         }
 
         function deductStockForOrder(order) {
-            if (!order || !order.items) return;
-
+            if (!order?.items) return;
             order.items.forEach(item => {
                 const comp = composicoes[item.name];
-                if (!comp) return; // Se não tem composição, não desconta
-
-                // Desconta a composição multiplicada pela quantidade
-                Object.entries(comp).forEach(([insumoKey, qtdPorItem]) => {
-                    const totalADescontar = qtdPorItem * item.quantity;
-                    
-                    if (insumos[insumoKey]) {
-                        const novaQtd = Math.max(0, insumos[insumoKey].quantidade - totalADescontar);
-                        db.ref(`insumos/${insumoKey}/quantidade`).set(novaQtd);
+                if (!comp) return;
+                Object.entries(comp).forEach(([key, qtd]) => {
+                    const total = qtd * item.quantity;
+                    if (insumos[key]) {
+                        const nova = Math.max(0, insumos[key].quantidade - total);
+                        db.ref(`insumos/${key}/quantidade`).set(nova);
                     }
                 });
             });
         }
 
-        function cancelOrder(orderId) {
-            const order = orders[orderId];
+        function cancelOrder(id) {
+            const order = orders[id];
             if (confirm(`Cancelar pedido de "${order.clienteInfo}"?`)) {
-                if (db) {
-                    db.ref(`orders/${orderId}`).remove();
-                    showToast('❌ Pedido cancelado e removido da fila', 'success');
-                    renderCozinha();
-                }
+                if (db) { db.ref(`orders/${id}`).remove(); showToast('❌ Pedido cancelado', 'success'); renderCozinha(); }
             }
         }
 
-        // ============= ADMIN =============
         function switchAdminTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tabs .tab-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
             document.querySelectorAll('#relatorioTab, #estoqueTab, #atendentesTab').forEach(t => t.classList.remove('active'));
             document.getElementById(tab + 'Tab').classList.add('active');
-            
             if (tab === 'relatorio') loadAdminData();
-            else if (tab === 'atendentes') renderAtendentes();
         }
 
         function switchStockTab(tab) {
@@ -942,123 +475,60 @@
             event.target.classList.add('active');
             document.querySelectorAll('#insumosTab, #composicaoTab, #disponibilidadeTab').forEach(t => t.classList.remove('active'));
             document.getElementById(tab + 'Tab').classList.add('active');
-            
             if (tab === 'insumos') renderInsumos();
             else if (tab === 'composicao') renderComposicao();
             else renderDisponibilidade();
         }
 
-        function loadAdminData() {
-            populateMonthSelector();
-            loadMonthReport();
-        }
-
+        function loadAdminData() { populateMonthSelector(); loadMonthReport(); }
         function populateMonthSelector() {
             const select = document.getElementById('monthSelector');
             const months = new Set();
-            
-            Object.values(orders).forEach(order => {
-                if (order.month) months.add(order.month);
-            });
-
-            const sortedMonths = Array.from(months).sort().reverse();
-            select.innerHTML = sortedMonths.map(month => {
-                const date = new Date(month + '-01');
-                const label = date.toLocaleDateString('pt-BR', { year: 'numeric', month: 'long' });
-                return `<option value="${month}">${label.charAt(0).toUpperCase() + label.slice(1)}</option>`;
+            Object.values(orders).forEach(o => { if (o.month) months.add(o.month); });
+            const sorted = Array.from(months).sort().reverse();
+            select.innerHTML = sorted.map(m => {
+                const d = new Date(m + '-01');
+                const l = d.toLocaleDateString('pt-BR', {year: 'numeric', month: 'long'});
+                return `<option value="${m}">${l.charAt(0).toUpperCase() + l.slice(1)}</option>`;
             }).join('');
         }
 
         function loadMonthReport() {
             const month = document.getElementById('monthSelector').value;
             if (!month) return;
-
             const monthOrders = Object.values(orders).filter(o => o.month === month && o.status === 'done');
             const totalOrders = monthOrders.length;
-            const totalRevenue = monthOrders.reduce((sum, order) => sum + order.total, 0);
+            const totalRevenue = monthOrders.reduce((s, o) => s + o.total, 0);
             const avgTicket = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-
             document.getElementById('monthOrders').textContent = totalOrders;
             document.getElementById('monthRevenue').textContent = `R$ ${totalRevenue.toFixed(2)}`;
             document.getElementById('monthAvgTicket').textContent = `R$ ${avgTicket.toFixed(2)}`;
-
-            // Produtos mais vendidos
             const itemsSold = {};
-            monthOrders.forEach(order => {
-                order.items.forEach(item => {
-                    if (!itemsSold[item.name]) {
-                        itemsSold[item.name] = { qty: 0, total: 0, price: item.price };
-                    }
-                    itemsSold[item.name].qty += item.quantity;
-                    itemsSold[item.name].total += item.quantity * item.price;
+            monthOrders.forEach(o => {
+                o.items.forEach(i => {
+                    if (!itemsSold[i.name]) itemsSold[i.name] = {qty: 0, total: 0, price: i.price};
+                    itemsSold[i.name].qty += i.quantity;
+                    itemsSold[i.name].total += i.quantity * i.price;
                 });
             });
-
             const salesList = document.getElementById('monthSalesList');
             const items = Object.entries(itemsSold).sort((a, b) => b[1].qty - a[1].qty);
             salesList.innerHTML = items.length === 0 ? '<p style="color: #888;">Nenhuma venda</p>' :
-                items.map(([name, data]) => `
-                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--primary);">
-                        <div>
-                            <span style="background: rgba(212, 175, 55, 0.15); padding: 3px 10px; border-radius: 6px; font-weight: 600; margin-right: 10px;">${data.qty}x</span>
-                            ${name}
-                        </div>
-                        <div style="color: var(--accent); font-weight: 700;">R$ ${data.total.toFixed(2)}</div>
-                    </div>
-                `).join('');
-
-            // Lista de pedidos
+                items.map(([name, data]) => `<div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--primary);"><div><span style="background: rgba(212, 175, 55, 0.15); padding: 3px 10px; border-radius: 6px; font-weight: 600; margin-right: 10px;">${data.qty}x</span>${name}</div><div style="color: var(--accent); font-weight: 700;">R$ ${data.total.toFixed(2)}</div></div>`).join('');
             const ordersList = document.getElementById('monthOrdersList');
-            ordersList.innerHTML = monthOrders.map(order => `
-                <div class="card" style="border-left-color: var(--success); margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                        <div>
-                            <div style="font-weight: 700; color: var(--primary);">
-                                Pedido #${order.id.slice(-4)} - 📍 ${order.clienteInfo || 'N/A'}
-                            </div>
-                            <div style="font-size: 12px; color: #888;">${order.createdAt} - ${order.date}</div>
-                            <div style="font-size: 12px; color: #888; margin-top: 4px;">
-                                ${order.items.map(i => `${i.name} (${i.quantity}x)`).join(', ')}
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="color: var(--accent); font-weight: 700; font-size: 16px;">R$ ${order.total.toFixed(2)}</div>
-                            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 11px;" onclick="deleteOrder('${order.id}')">🗑 Deletar</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            ordersList.innerHTML = monthOrders.map(o => `<div class="card" style="border-left-color: var(--success); margin-bottom: 10px;"><div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;"><div><div style="font-weight: 700; color: var(--primary);">Pedido #${o.id.slice(-4)} - 📍 ${o.clienteInfo || 'N/A'}</div><div style="font-size: 12px; color: #888;">${o.createdAt} - ${o.date}</div><div style="font-size: 12px; color: #888; margin-top: 4px;">${o.items.map(i => `${i.name} (${i.quantity}x)`).join(', ')}</div></div><div style="display: flex; align-items: center; gap: 10px;"><div style="color: var(--accent); font-weight: 700; font-size: 16px;">R$ ${o.total.toFixed(2)}</div><button class="btn btn-danger" style="padding: 6px 12px; font-size: 11px;" onclick="deleteOrder('${o.id}')">🗑 Deletar</button></div></div></div>`).join('');
         }
 
-        function deleteOrder(orderId) {
-            if (confirm('Deletar este pedido?')) {
-                if (db) {
-                    db.ref(`orders/${orderId}`).remove();
-                    showToast('✅ Pedido deletado', 'success');
-                    loadMonthReport();
-                }
-            }
-        }
+        function deleteOrder(id) { if (confirm('Deletar pedido?')) { if (db) { db.ref(`orders/${id}`).remove(); showToast('✅ Deletado', 'success'); loadMonthReport(); } } }
 
-        // ============= ESTOQUE =============
         function addInsumo() {
-            const nome = document.getElementById('insumoNome').value.trim();
-            const qtd = parseFloat(document.getElementById('insumoCantidade').value);
-            const unidade = document.getElementById('insumoUnidade').value.trim();
-
-            if (!nome || !qtd || !unidade) {
-                showToast('Preencha todos os campos!', 'error');
-                return;
-            }
-
+            const n = document.getElementById('insumoNome').value.trim();
+            const q = parseFloat(document.getElementById('insumoCantidade').value);
+            const u = document.getElementById('insumoUnidade').value.trim();
+            if (!n || !q || !u) { showToast('Preencha tudo!', 'error'); return; }
             if (db) {
-                db.ref(`insumos/${nome}`).set({
-                    nome: nome,
-                    quantidade: qtd,
-                    unidade: unidade,
-                    dataCadastro: new Date().toISOString()
-                }).then(() => {
-                    showToast(`✅ ${nome} adicionado!`, 'success');
+                db.ref(`insumos/${n}`).set({nome: n, quantidade: q, unidade: u, dataCadastro: new Date().toISOString()}).then(() => {
+                    showToast(`✅ ${n} adicionado!`, 'success');
                     document.getElementById('insumoNome').value = '';
                     document.getElementById('insumoCantidade').value = '';
                     document.getElementById('insumoUnidade').value = '';
@@ -1068,347 +538,118 @@
         }
 
         function renderInsumos() {
-            const lista = document.getElementById('insumosLista');
+            const l = document.getElementById('insumosLista');
             const items = Object.entries(insumos);
-
-            if (items.length === 0) {
-                lista.innerHTML = '<p style="color: #888;">Nenhum insumo cadastrado</p>';
-                return;
-            }
-
-            lista.innerHTML = items.map(([key, insumo]) => `
-                <div class="card ${insumo.quantidade > 0 ? 'success' : 'warning'}">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <div>
-                            <div style="font-weight: 700; color: var(--primary);">${insumo.nome}</div>
-                            <div style="font-size: 12px; color: #888;">${insumo.quantidade} ${insumo.unidade}</div>
-                        </div>
-                        <div style="color: ${insumo.quantidade > 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: 700;">
-                            ${insumo.quantidade > 0 ? '✓ OK' : '✗ BAIXO'}
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-primary" style="flex: 1; padding: 8px;" onclick="addQtyInsumo('${key}')">+ Adicionar</button>
-                        <button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="deleteInsumo('${key}')">🗑 Deletar</button>
-                    </div>
-                </div>
-            `).join('');
+            if (items.length === 0) { l.innerHTML = '<p style="color: #888;">Nenhum insumo</p>'; return; }
+            l.innerHTML = items.map(([k, ins]) => `<div class="card ${ins.quantidade > 0 ? 'success' : 'pending'}"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><div><div style="font-weight: 700; color: var(--primary);">${ins.nome}</div><div style="font-size: 12px; color: #888;">${ins.quantidade} ${ins.unidade}</div></div><div style="color: ${ins.quantidade > 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: 700;">${ins.quantidade > 0 ? '✓' : '✗'}</div></div><div style="display: flex; gap: 8px;"><button class="btn btn-primary" style="flex: 1; padding: 8px;" onclick="addQtyInsumo('${k}')">+ Add</button><button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="deleteInsumo('${k}')">🗑</button></div></div>`).join('');
         }
 
-        function addQtyInsumo(key) {
-            const qtd = prompt('Quantidade a adicionar:');
-            if (qtd && !isNaN(qtd)) {
-                const newQty = (insumos[key]?.quantidade || 0) + parseFloat(qtd);
-                if (db) {
-                    db.ref(`insumos/${key}/quantidade`).set(newQty);
-                    showToast('✅ Atualizado!', 'success');
-                }
-            }
-        }
-
-        function deleteInsumo(key) {
-            if (confirm('Deletar este insumo?')) {
-                if (db) {
-                    db.ref(`insumos/${key}`).remove();
-                    showToast('✅ Deletado!', 'success');
-                    renderInsumos();
-                }
-            }
-        }
+        function addQtyInsumo(k) { const q = prompt('Quantidade:'); if (q && !isNaN(q)) { const nova = (insumos[k]?.quantidade || 0) + parseFloat(q); if (db) { db.ref(`insumos/${k}/quantidade`).set(nova); showToast('✅ Atualizado!', 'success'); } } }
+        function deleteInsumo(k) { if (confirm('Deletar?')) { if (db) { db.ref(`insumos/${k}`).remove(); showToast('✅ Deletado!', 'success'); renderInsumos(); } } }
 
         function renderComposicao() {
-            const select = document.getElementById('itemSelect');
-            select.innerHTML = '<option value="">-- Escolha um item --</option>';
-
-            Object.values(MENU).flat().forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.name;
-                option.textContent = item.name;
-                select.appendChild(option);
+            const s = document.getElementById('itemSelect');
+            s.innerHTML = '<option value="">-- Escolha um item --</option>';
+            Object.values(MENU).flat().forEach(i => {
+                const opt = document.createElement('option');
+                opt.value = i.name;
+                opt.textContent = i.name;
+                s.appendChild(opt);
             });
-
             renderComposicoesList();
         }
 
         function loadItemComposition() {
-            const itemNome = document.getElementById('itemSelect').value;
-            if (!itemNome) {
-                document.getElementById('compositionForm').classList.add('hidden');
-                return;
-            }
-
+            const nome = document.getElementById('itemSelect').value;
+            if (!nome) { document.getElementById('compositionForm').classList.add('hidden'); return; }
             const form = document.getElementById('compositionForm');
-            const container = document.getElementById('compositionInputs');
-            const composicao = composicoes[itemNome] || {};
-
+            const cont = document.getElementById('compositionInputs');
+            const comp = composicoes[nome] || {};
             let html = '';
-            Object.entries(insumos).forEach(([key, insumo]) => {
-                const qtd = composicao[key] || 0;
-                html += `
-                    <div class="form-group">
-                        <label>${insumo.nome}</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="number" value="${qtd}" step="0.1" min="0" id="comp-${key}" style="flex: 1;" placeholder="0">
-                            <span style="padding: 10px 12px; background: var(--border); border-radius: 8px; font-weight: 600; min-width: 60px;">${insumo.unidade}</span>
-                        </div>
-                    </div>
-                `;
+            Object.entries(insumos).forEach(([k, ins]) => {
+                const q = comp[k] || 0;
+                html += `<div class="form-group"><label>${ins.nome}</label><div style="display: flex; gap: 10px;"><input type="number" value="${q}" step="0.1" min="0" id="comp-${k}" style="flex: 1;" placeholder="0"><span style="padding: 10px 12px; background: var(--border); border-radius: 8px; font-weight: 600; min-width: 60px;">${ins.unidade}</span></div></div>`;
             });
-
-            container.innerHTML = html;
+            cont.innerHTML = html;
             form.classList.remove('hidden');
         }
 
         function saveComposicao() {
-            const itemNome = document.getElementById('itemSelect').value;
-            if (!itemNome) {
-                showToast('Selecione um item!', 'error');
-                return;
-            }
-
+            const nome = document.getElementById('itemSelect').value;
+            if (!nome) { showToast('Escolha um item!', 'error'); return; }
             const comp = {};
-            Object.keys(insumos).forEach(key => {
-                const input = document.getElementById(`comp-${key}`);
-                const qtd = parseFloat(input?.value || 0);
-                if (qtd > 0) comp[key] = qtd;
-            });
-
-            if (Object.keys(comp).length === 0) {
-                showToast('Defina pelo menos um componente!', 'error');
-                return;
-            }
-
-            if (db) {
-                db.ref(`composicoes/${itemNome}`).set(comp).then(() => {
-                    showToast(`✅ Composição salva!`, 'success');
-                    renderComposicoesList();
-                });
-            }
+            Object.keys(insumos).forEach(k => { const q = parseFloat(document.getElementById(`comp-${k}`)?.value || 0); if (q > 0) comp[k] = q; });
+            if (Object.keys(comp).length === 0) { showToast('Define componentes!', 'error'); return; }
+            if (db) { db.ref(`composicoes/${nome}`).set(comp).then(() => { showToast(`✅ Composição salva!`, 'success'); renderComposicoesList(); }); }
         }
 
         function renderComposicoesList() {
-            const lista = document.getElementById('composicoesList');
+            const l = document.getElementById('composicoesList');
             const items = Object.entries(composicoes);
-
-            if (items.length === 0) {
-                lista.innerHTML = '<p style="color: #888;">Nenhuma composição definida</p>';
-                return;
-            }
-
-            lista.innerHTML = items.map(([itemNome, comp]) => `
-                <div class="card">
-                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 10px;">${itemNome}</div>
-                    <div>
-                        ${Object.entries(comp).map(([key, qtd]) => `
-                            <div style="padding: 6px 0; font-size: 13px; color: #666;">
-                                • ${insumos[key]?.nome || key}: ${qtd} ${insumos[key]?.unidade || ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                    <button class="btn btn-danger" style="margin-top: 10px;" onclick="deleteComposicao('${itemNome}')">Deletar</button>
-                </div>
-            `).join('');
+            if (items.length === 0) { l.innerHTML = '<p style="color: #888;">Nenhuma</p>'; return; }
+            l.innerHTML = items.map(([nome, comp]) => `<div class="card"><div style="font-weight: 700; color: var(--primary); margin-bottom: 10px;">${nome}</div><div>${Object.entries(comp).map(([k, q]) => `<div style="padding: 6px 0; font-size: 13px; color: #666;">• ${insumos[k]?.nome || k}: ${q} ${insumos[k]?.unidade || ''}</div>`).join('')}</div><button class="btn btn-danger" style="margin-top: 10px;" onclick="deleteComposicao('${nome}')">Deletar</button></div>`).join('');
         }
 
-        function deleteComposicao(itemNome) {
-            if (confirm(`Deletar composição de "${itemNome}"?`)) {
-                if (db) {
-                    db.ref(`composicoes/${itemNome}`).remove();
-                    showToast('✅ Deletado!', 'success');
-                    renderComposicoesList();
-                }
-            }
-        }
+        function deleteComposicao(nome) { if (confirm(`Deletar composição de "${nome}"?`)) { if (db) { db.ref(`composicoes/${nome}`).remove(); showToast('✅ Deletado!', 'success'); renderComposicoesList(); } } }
 
         function renderDisponibilidade() {
             const div = document.getElementById('availabilityList');
             const items = [];
-
             Object.values(MENU).flat().forEach(item => {
                 const comp = composicoes[item.name] || {};
                 let disponivel = Object.keys(comp).length > 0;
                 let problemas = [];
                 let quantosPode = Infinity;
-
-                Object.entries(comp).forEach(([key, qtdNecessaria]) => {
-                    const insumo = insumos[key];
-                    if (!insumo) {
-                        disponivel = false;
-                        problemas.push(`⚠️ ${key} não cadastrado`);
-                        quantosPode = 0;
-                    } else if (insumo.quantidade < qtdNecessaria) {
-                        disponivel = false;
-                        // Calcula quantos itens podem ser feitos com este insumo
-                        const possivelComEste = Math.floor(insumo.quantidade / qtdNecessaria);
-                        quantosPode = Math.min(quantosPode, possivelComEste);
-                        problemas.push(`❌ ${insumo.nome}: precisa ${qtdNecessaria}${insumo.unidade}, tem ${insumo.quantidade}${insumo.unidade} (${possivelComEste} possível)`);
-                    } else {
-                        // Se tem estoque, calcula o máximo possível com este insumo
-                        const possivelComEste = Math.floor(insumo.quantidade / qtdNecessaria);
-                        quantosPode = Math.min(quantosPode, possivelComEste);
-                    }
+                Object.entries(comp).forEach(([k, qtd]) => {
+                    const ins = insumos[k];
+                    if (!ins) { disponivel = false; problemas.push(`⚠️ ${k} não cadastrado`); quantosPode = 0; }
+                    else if (ins.quantidade < qtd) { disponivel = false; const possivel = Math.floor(ins.quantidade / qtd); quantosPode = Math.min(quantosPode, possivel); problemas.push(`❌ ${ins.nome}: precisa ${qtd}${ins.unidade}, tem ${ins.quantidade}${ins.unidade} (${possivel} possível)`); }
+                    else { const possivel = Math.floor(ins.quantidade / qtd); quantosPode = Math.min(quantosPode, possivel); }
                 });
-
-                if (Object.keys(comp).length === 0) {
-                    disponivel = null; // Sem composição
-                    quantosPode = 0;
-                } else if (disponivel && quantosPode !== Infinity) {
-                    // Se disponível, mostra quantos podem ser feitos
-                    problemas = [`✅ Pode fazer: ${quantosPode} unidades`];
-                }
-
-                items.push({
-                    name: item.name,
-                    icon: item.icon,
-                    disponivel,
-                    problemas,
-                    quantosPode: quantosPode === Infinity ? 0 : quantosPode
-                });
+                if (Object.keys(comp).length === 0) { disponivel = null; quantosPode = 0; }
+                else if (disponivel && quantosPode !== Infinity) problemas = [`✅ Pode fazer: ${quantosPode} unidades`];
+                items.push({name: item.name, icon: item.icon, disponivel, problemas, quantosPode: quantosPode === Infinity ? 0 : quantosPode});
             });
-
             div.innerHTML = items.map(item => {
-                let bgClass = '';
-                let status = '';
-                let statusColor = '';
-                
-                if (item.disponivel === null) {
-                    bgClass = '';
-                    status = '⚠️ SEM COMPOSIÇÃO';
-                    statusColor = '#F9A825';
-                } else if (item.disponivel) {
-                    bgClass = 'success';
-                    status = `✓ DISPONÍVEL (${item.quantosPode} possível)`;
-                    statusColor = 'var(--success)';
-                } else {
-                    bgClass = 'warning';
-                    status = `✗ INDISPONÍVEL (${item.quantosPode} possível)`;
-                    statusColor = 'var(--danger)';
-                }
-
-                return `
-                    <div class="card ${bgClass}">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <div style="font-weight: 700; color: var(--primary); font-size: 16px;">
-                                ${item.icon} ${item.name}
-                            </div>
-                            <div style="font-weight: 700; color: ${statusColor}; font-size: 14px;">
-                                ${status}
-                            </div>
-                        </div>
-                        ${item.problemas.length > 0 ? item.problemas.map(msg => 
-                            `<div style="font-size: 13px; color: #666; margin: 4px 0;">${msg}</div>`
-                        ).join('') : ''}
-                    </div>
-                `;
+                let bg = '', status = '', cor = '';
+                if (item.disponivel === null) { bg = ''; status = '⚠️ SEM COMPOSIÇÃO'; cor = '#F9A825'; }
+                else if (item.disponivel) { bg = 'success'; status = `✓ DISPONÍVEL (${item.quantosPode} possível)`; cor = 'var(--success)'; }
+                else { bg = 'pending'; status = `✗ INDISPONÍVEL (${item.quantosPode} possível)`; cor = 'var(--danger)'; }
+                return `<div class="card ${bg}"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><div style="font-weight: 700; color: var(--primary); font-size: 16px;">${item.icon} ${item.name}</div><div style="font-weight: 700; color: ${cor}; font-size: 14px;">${status}</div></div>${item.problemas.length > 0 ? item.problemas.map(msg => `<div style="font-size: 13px; color: #666; margin: 4px 0;">${msg}</div>`).join('') : ''}</div>`;
             }).join('');
         }
 
-        // ============= HELPERS =============
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        // ============= INIT =============
-        window.addEventListener('load', () => {
-            showPage('homePage');
-        });
-
-        // ============= STYLES PARA MENU GRID =============
-        const style = document.createElement('style');
-        style.textContent = `
-            .menu-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 12px;
-                margin-bottom: 20px;
-        // ============= ATENDENTES =============
         function createAtendente() {
-            const name = document.getElementById('atendenteName').value.trim();
-            const email = document.getElementById('atendenteEmail').value.trim();
-
-            if (!name) {
-                showToast('Digite o nome do atendente!', 'error');
-                return;
-            }
-
-            // Gera um ID único (timestamp + random)
+            const n = document.getElementById('atendenteName').value.trim();
+            const e = document.getElementById('atendenteEmail').value.trim();
+            if (!n) { showToast('Nome obrigatório!', 'error'); return; }
             const id = 'ATD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-
             if (db) {
-                db.ref(`atendentes/${id}`).set({
-                    id: id,
-                    nome: name,
-                    email: email || '',
-                    dataCadastro: new Date().toISOString(),
-                    ativo: true
-                }).then(() => {
-                    showToast(`✅ Atendente "${name}" cadastrado com ID: ${id}`, 'success');
+                db.ref(`atendentes/${id}`).set({id, nome: n, email: e || '', dataCadastro: new Date().toISOString(), ativo: true}).then(() => {
+                    showToast(`✅ "${n}" cadastrado com ID: ${id}`, 'success');
                     document.getElementById('atendenteName').value = '';
                     document.getElementById('atendenteEmail').value = '';
                     renderAtendentes();
-                }).catch(err => {
-                    showToast('❌ Erro: ' + err.message, 'error');
                 });
             }
         }
 
         function renderAtendentes() {
-            const lista = document.getElementById('atendentesList');
+            const l = document.getElementById('atendentesList');
             const items = Object.entries(atendentes);
-
-            if (items.length === 0) {
-                lista.innerHTML = '<p style="color: #888;">Nenhum atendente cadastrado</p>';
-                return;
-            }
-
-            lista.innerHTML = items.map(([key, atendente]) => `
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                        <div>
-                            <div style="font-weight: 700; color: var(--primary); font-size: 16px;">
-                                ${atendente.nome}
-                            </div>
-                            <div style="font-size: 13px; color: var(--accent); font-weight: 600; margin-top: 4px;">
-                                ID: ${atendente.id}
-                            </div>
-                            ${atendente.email ? `
-                                <div style="font-size: 12px; color: #888; margin-top: 4px;">
-                                    📧 ${atendente.email}
-                                </div>
-                            ` : ''}
-                            <div style="font-size: 11px; color: #aaa; margin-top: 4px;">
-                                Cadastrado em: ${new Date(atendente.dataCadastro).toLocaleDateString('pt-BR')}
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="background: ${atendente.ativo ? 'var(--success)' : 'var(--danger)'}; color: white; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-bottom: 8px;">
-                                ${atendente.ativo ? '✓ Ativo' : '✗ Inativo'}
-                            </div>
-                            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 11px;" onclick="deleteAtendente('${key}')">🗑 Deletar</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            if (items.length === 0) { l.innerHTML = '<p style="color: #888;">Nenhum</p>'; return; }
+            l.innerHTML = items.map(([k, a]) => `<div class="card"><div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;"><div><div style="font-weight: 700; color: var(--primary); font-size: 16px;">${a.nome}</div><div style="font-size: 13px; color: var(--accent); font-weight: 600; margin-top: 4px;">ID: ${a.id}</div>${a.email ? `<div style="font-size: 12px; color: #888; margin-top: 4px;">📧 ${a.email}</div>` : ''}<div style="font-size: 11px; color: #aaa; margin-top: 4px;">Cadastrado: ${new Date(a.dataCadastro).toLocaleDateString('pt-BR')}</div></div><div style="text-align: right;"><div style="background: ${a.ativo ? 'var(--success)' : 'var(--danger)'}; color: white; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-bottom: 8px;">${a.ativo ? '✓ Ativo' : '✗ Inativo'}</div><button class="btn btn-danger" style="padding: 6px 12px; font-size: 11px;" onclick="deleteAtendente('${k}')">🗑 Deletar</button></div></div></div>`).join('');
         }
 
-        function deleteAtendente(key) {
-            const atendente = atendentes[key];
-            if (confirm(`Deletar atendente "${atendente.nome}"?`)) {
-                if (db) {
-                    db.ref(`atendentes/${key}`).remove();
-                    showToast('✅ Atendente deletado!', 'success');
-                    renderAtendentes();
-                }
-            }
-        }
+        function deleteAtendente(k) { const a = atendentes[k]; if (confirm(`Deletar "${a.nome}"?`)) { if (db) { db.ref(`atendentes/${k}`).remove(); showToast('✅ Deletado!', 'success'); renderAtendentes(); } } }
 
-            }
-        `;
-        document.head.appendChild(style);
+        function showToast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
     </script>
 </body>
 </html>
