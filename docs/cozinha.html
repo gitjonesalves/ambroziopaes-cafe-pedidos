@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👨‍🍳 Cozinha - Ambrózio Paes</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>👨‍🍳</text></svg>">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+
+    <style>
+        /* Cozinha específico */
+        .kitchen-container {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 20px;
+          padding: 20px 0;
+        }
+
+        .order-card {
+          background: white;
+          border-radius: 12px;
+          padding: 20px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+          border-top: 5px solid var(--warning);
+          transition: all 0.3s ease;
+          animation: slideIn 0.3s ease;
+        }
+
+        .order-card.ready {
+          border-top-color: var(--success);
+          background: rgba(124, 179, 66, 0.02);
+        }
+
+        .order-card.done {
+          opacity: 0.5;
+          pointer-events: none;
+        }
+
+        @keyframes slideIn {
+          from {
+            transform: translateY(20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+
+        .order-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 15px;
+          padding-bottom: 15px;
+          border-bottom: 2px solid var(--border);
+        }
+
+        .order-number {
+          font-size: 24px;
+          font-weight: 700;
+          color: var(--primary);
+        }
+
+        .order-time {
+          font-size: 12px;
+          color: #888;
+          background: var(--light);
+          padding: 4px 10px;
+          border-radius: 20px;
+        }
+
+        .order-client {
+          font-size: 18px;
+          font-weight: 600;
+          color: var(--accent);
+          margin-bottom: 10px;
+        }
+
+        .order-items {
+          background: var(--light);
+          border-radius: 8px;
+          padding: 15px;
+          margin-bottom: 15px;
+        }
+
+        .order-item {
+          display: flex;
+          justify-content: space-between;
+          padding: 8px 0;
+          border-bottom: 1px solid var(--border);
+          font-size: 14px;
+        }
+
+        .order-item:last-child {
+          border-bottom: none;
+        }
+
+        .order-item-qty {
+          background: var(--accent);
+          color: var(--primary);
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-weight: 600;
+          font-size: 12px;
+        }
+
+        .order-buttons {
+          display: flex;
+          gap: 10px;
+        }
+
+        .order-buttons .btn {
+          flex: 1;
+          padding: 10px 12px;
+          font-size: 13px;
+        }
+
+        .empty-queue {
+          text-align: center;
+          padding: 60px 20px;
+          color: #888;
+        }
+
+        .empty-queue-icon {
+          font-size: 48px;
+          margin-bottom: 20px;
+          opacity: 0.5;
+        }
+
+        .empty-queue p {
+          font-size: 18px;
+          color: var(--primary);
+        }
+
+        .status-badge {
+          display: inline-block;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .status-badge.pending {
+          background: rgba(249, 168, 37, 0.15);
+          color: var(--warning);
+        }
+
+        .status-badge.ready {
+          background: rgba(124, 179, 66, 0.15);
+          color: var(--success);
+        }
+
+        .refresh-indicator {
+          position: fixed;
+          top: 80px;
+          right: 20px;
+          font-size: 12px;
+          color: #888;
+        }
+
+        .refresh-indicator.syncing {
+          color: var(--info);
+          font-weight: 600;
+        }
+
+        .sound-toggle {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          background: var(--accent);
+          border: none;
+          color: var(--primary);
+          font-size: 20px;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s;
+        }
+
+        .sound-toggle:hover {
+          transform: scale(1.1);
+        }
+
+        .sound-toggle.muted {
+          opacity: 0.5;
+        }
+
+        @media (max-width: 640px) {
+          .kitchen-container {
+            grid-template-columns: 1fr;
+          }
+
+          .order-header {
+            flex-direction: column;
+            gap: 10px;
+          }
+
+          .order-number {
+            font-size: 20px;
+          }
+
+          .order-client {
+            font-size: 16px;
+          }
+
+          .order-buttons .btn {
+            font-size: 12px;
+            padding: 8px 10px;
+          }
+
+          .sound-toggle {
+            width: 45px;
+            height: 45px;
+            font-size: 18px;
+          }
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <span class="logo">☕ Ambrózio Paes - 👨‍🍳 Cozinha</span>
+        <div class="header-actions">
+            <a href="index.html" class="home-link">🏠 Início</a>
+        </div>
+    </div>
+</header>
+
+<!-- Refresh indicator -->
+<div class="refresh-indicator" id="refreshIndicator">📡 Conectado</div>
+
+<!-- Main Content -->
+<div class="container">
+    <h1>📋 Fila de Pedidos</h1>
+
+    <!-- Kitchen Queue -->
+    <div id="kitchenQueue" class="kitchen-container">
+        <div class="empty-queue">
+            <div class="empty-queue-icon">⏳</div>
+            <p>Carregando pedidos...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Sound Toggle -->
+<button id="soundToggle" class="sound-toggle" title="Alternar som">🔊</button>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Modal de Confirmação -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Confirmar Ação</h2>
+        </div>
+        <div class="modal-body" id="confirmModalBody"></div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeConfirmModal()">Cancelar</button>
+            <button class="btn btn-danger" id="confirmActionBtn" onclick="executeConfirmAction()">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="config/env.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/toast.js"></script>
+<script type="module">
+    import { db, setupConnectionListener } from './js/firebase-init.js';
+    import { showToast, showSuccess, showError } from './js/toast.js';
+    import { formatTime, formatCurrency, sanitize } from './js/utils.js';
+    import { listenToKitchenQueue, updateOrderStatus, cancelOrder as dbCancelOrder } from './js/db.js';
+
+    let orders = [];
+    let soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+    let pendingAction = null;
+    let unsubscribe = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      setupConnectionListener(onConnectionChange);
+      updateSoundToggle();
+      startListening();
+    });
+
+    // Start listening to orders
+    window.startListening = function() {
+      unsubscribe = listenToKitchenQueue((newOrders) => {
+        handleOrdersUpdate(newOrders);
+      });
+    };
+
+    window.handleOrdersUpdate = function(newOrders) {
+      const oldOrderIds = orders.map(o => o.id);
+      const newOrderIds = newOrders.map(o => o.id);
+      const newlyAdded = newOrderIds.filter(id => !oldOrderIds.includes(id));
+
+      orders = newOrders;
+      renderKitchenQueue();
+
+      if (newlyAdded.length > 0 && soundEnabled) {
+        playNotificationSound();
+      }
+    };
+
+    window.renderKitchenQueue = function() {
+      const queueDiv = document.getElementById('kitchenQueue');
+
+      if (orders.length === 0) {
+        queueDiv.innerHTML = `
+          <div class="empty-queue">
+            <div class="empty-queue-icon">✅</div>
+            <p>Nenhum pedido no momento</p>
+          </div>
+        `;
+        return;
+      }
+
+      queueDiv.innerHTML = orders.map(order => {
+        const createdTime = formatTime(order.createdAt);
+        const isReady = order.status === 'ready';
+
+        return `
+          <div class="order-card ${isReady ? 'ready' : ''}">
+            <div class="order-header">
+              <div>
+                <div class="order-number">Pedido #${order.id.slice(0, 6)}</div>
+                <div class="status-badge ${order.status}">${order.status === 'ready' ? '✓ PRONTO' : '⏳ PENDENTE'}</div>
+              </div>
+              <div class="order-time">${createdTime}</div>
+            </div>
+
+            <div class="order-client">📍 ${sanitize(order.clienteInfo)}</div>
+
+            <div class="order-items">
+              ${order.items.map(item => `
+                <div class="order-item">
+                  <span>${sanitize(item.name)}</span>
+                  <span class="order-item-qty">${item.quantity}x</span>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="order-buttons">
+              ${!isReady ? `
+                <button
+                  class="btn btn-success"
+                  onclick="markReady('${order.id}')"
+                >
+                  ✓ Pronto
+                </button>
+                <button
+                  class="btn btn-danger"
+                  onclick="showCancelConfirm('${order.id}', '${sanitize(order.clienteInfo)}')"
+                >
+                  ✕ Cancelar
+                </button>
+              ` : `
+                <button
+                  class="btn btn-primary"
+                  onclick="markDelivered('${order.id}')"
+                  style="width: 100%;"
+                >
+                  ✓ Entregue
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    // Mark as Ready
+    window.markReady = async function(orderId) {
+      try {
+        await updateOrderStatus(orderId, 'ready');
+        showSuccess('✅ Pedido marcado como pronto!');
+      } catch (error) {
+        console.error('Erro ao marcar pronto:', error);
+        showError('Erro ao marcar pronto');
+      }
+    };
+
+    // Mark as Delivered
+    window.markDelivered = async function(orderId) {
+      try {
+        await updateOrderStatus(orderId, 'done');
+        showSuccess('✅ Pedido entregue!');
+      } catch (error) {
+        console.error('Erro ao marcar entregue:', error);
+        showError('Erro ao marcar entregue');
+      }
+    };
+
+    // Cancel Order
+    window.showCancelConfirm = function(orderId, clientInfo) {
+      pendingAction = { type: 'cancel', orderId, clientInfo };
+      document.getElementById('confirmModalBody').innerHTML = `
+        <p>Tem certeza que deseja <strong>cancelar</strong> o pedido?</p>
+        <p style="margin-top: 15px; color: var(--accent); font-weight: 600;">
+          📍 ${clientInfo}
+        </p>
+      `;
+      document.getElementById('confirmActionBtn').textContent = '✕ Cancelar Pedido';
+      document.getElementById('confirmActionBtn').className = 'btn btn-danger';
+      document.getElementById('confirmModal').classList.add('active');
+    };
+
+    window.executeConfirmAction = async function() {
+      if (!pendingAction) return;
+
+      closeConfirmModal();
+
+      try {
+        if (pendingAction.type === 'cancel') {
+          await dbCancelOrder(pendingAction.orderId);
+          showSuccess('✅ Pedido cancelado!');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        showError('Erro ao executar ação');
+      } finally {
+        pendingAction = null;
+      }
+    };
+
+    window.closeConfirmModal = function() {
+      document.getElementById('confirmModal').classList.remove('active');
+      pendingAction = null;
+    };
+
+    // Sound
+    window.toggleSound = function() {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem('soundEnabled', soundEnabled);
+      updateSoundToggle();
+      showToast(soundEnabled ? '🔊 Som ativado' : '🔇 Som desativado', 'info', 2000);
+    };
+
+    window.updateSoundToggle = function() {
+      const btn = document.getElementById('soundToggle');
+      if (soundEnabled) {
+        btn.textContent = '🔊';
+        btn.classList.remove('muted');
+      } else {
+        btn.textContent = '🔇';
+        btn.classList.add('muted');
+      }
+    };
+
+    document.getElementById('soundToggle').addEventListener('click', toggleSound);
+
+    window.playNotificationSound = function() {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+      } catch (e) {
+        console.warn('Erro ao tocar som:', e);
+      }
+    };
+
+    // Connection handler
+    window.onConnectionChange = function(isConnected) {
+      const indicator = document.getElementById('refreshIndicator');
+      if (isConnected) {
+        indicator.textContent = '📡 Conectado';
+        indicator.classList.remove('syncing');
+      } else {
+        indicator.textContent = '⏸️ Offline (cache)';
+        indicator.classList.add('syncing');
+      }
+    };
+
+    // Cleanup
+    window.addEventListener('beforeunload', () => {
+      if (unsubscribe) unsubscribe();
+    });
+</script>
+</body>
+</html>

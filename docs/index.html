@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☕ Ambrózio Paes - Sistema de Pedidos</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>☕</text></svg>">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+
+    <style>
+        /* Home específico */
+        .home-container {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 20px;
+          padding: 40px 20px;
+          max-width: 1000px;
+          margin: 0 auto;
+        }
+
+        .role-card {
+          background: white;
+          border-radius: 16px;
+          padding: 40px 30px;
+          text-align: center;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          border-left: 5px solid var(--accent);
+          transition: all 0.3s ease;
+          cursor: pointer;
+        }
+
+        .role-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+        }
+
+        .role-card .icon {
+          font-size: 48px;
+          margin-bottom: 20px;
+          display: block;
+        }
+
+        .role-card h2 {
+          color: var(--primary);
+          margin-bottom: 10px;
+          font-size: 24px;
+        }
+
+        .role-card p {
+          color: #666;
+          margin-bottom: 25px;
+          font-size: 14px;
+          line-height: 1.6;
+        }
+
+        .role-card .btn {
+          width: 100%;
+        }
+
+        .info-banner {
+          background: linear-gradient(135deg, var(--primary), var(--primary-light));
+          color: white;
+          padding: 30px;
+          border-radius: 12px;
+          text-align: center;
+          margin-bottom: 30px;
+        }
+
+        .info-banner h1 {
+          color: white;
+          font-size: 32px;
+          margin-bottom: 10px;
+        }
+
+        .info-banner p {
+          color: rgba(255, 255, 255, 0.9);
+          font-size: 16px;
+        }
+
+        .time-display {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          background: var(--primary);
+          color: var(--accent);
+          padding: 10px 15px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 640px) {
+          .home-container {
+            grid-template-columns: 1fr;
+            padding: 20px 15px;
+          }
+
+          .role-card {
+            padding: 30px 20px;
+          }
+
+          .role-card .icon {
+            font-size: 40px;
+          }
+
+          .info-banner h1 {
+            font-size: 24px;
+          }
+
+          .time-display {
+            font-size: 12px;
+            padding: 8px 12px;
+          }
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <span class="logo">☕ Ambrózio Paes</span>
+    </div>
+</header>
+
+<!-- Content -->
+<div class="container">
+    <div class="info-banner">
+        <h1>Bem-vindo ao Sistema de Pedidos</h1>
+        <p>Escolha seu acesso para continuar</p>
+    </div>
+
+    <div class="home-container">
+        <!-- Atendente -->
+        <div class="role-card" onclick="goToPage('atendente.html')">
+            <span class="icon">👤</span>
+            <h2>Atendente</h2>
+            <p>Receba e registre pedidos dos clientes</p>
+            <button class="btn btn-primary">Acessar</button>
+        </div>
+
+        <!-- Cozinha -->
+        <div class="role-card" onclick="goToPage('cozinha.html')">
+            <span class="icon">👨‍🍳</span>
+            <h2>Cozinha</h2>
+            <p>Prepare e acompanhe a fila de pedidos</p>
+            <button class="btn btn-primary">Acessar</button>
+        </div>
+
+        <!-- Admin -->
+        <div class="role-card" onclick="goToPage('admin.html')">
+            <span class="icon">📊</span>
+            <h2>Admin</h2>
+            <p>Acesso a relatórios e configurações</p>
+            <button class="btn btn-primary">Acessar</button>
+        </div>
+
+        <!-- Estoque -->
+        <div class="role-card" onclick="goToPage('estoque.html')">
+            <span class="icon">📦</span>
+            <h2>Estoque</h2>
+            <p>Gestão de insumos e composições</p>
+            <button class="btn btn-primary">Acessar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Time Display -->
+<div class="time-display" id="timeDisplay"></div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<script src="config/env.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/toast.js"></script>
+<script type="module">
+    // Update time
+    function updateTime() {
+      const now = new Date();
+      const time = now.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      const date = now.toLocaleDateString('pt-BR');
+      document.getElementById('timeDisplay').textContent = `${date} ${time}`;
+    }
+
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // Navigation
+    window.goToPage = function(page) {
+      window.location.href = page;
+    };
+</script>
+</body>
+</html>

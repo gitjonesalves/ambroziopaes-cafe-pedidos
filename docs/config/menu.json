@@ -1,0 +1,112 @@
+{
+  "categorias": [
+    {
+      "id": "bebidas",
+      "nome": "🥤 Bebidas",
+      "itens": [
+        {
+          "id": "cappuccino",
+          "nome": "Cappuccino",
+          "descricao": "Espresso com leite vaporizado e canela",
+          "preco": 8.00,
+          "acucar": true,
+          "lactose": true,
+          "disponivel": true
+        },
+        {
+          "id": "latte",
+          "nome": "Latte",
+          "descricao": "Espresso com leite quente",
+          "preco": 8.50,
+          "acucar": true,
+          "lactose": true,
+          "disponivel": true
+        },
+        {
+          "id": "espresso",
+          "nome": "Espresso",
+          "descricao": "Café espresso puro",
+          "preco": 4.00,
+          "acucar": false,
+          "lactose": false,
+          "disponivel": true
+        },
+        {
+          "id": "suco-natural",
+          "nome": "Suco Natural",
+          "descricao": "Suco fresco natural (laranja, maçã ou cenoura)",
+          "preco": 7.00,
+          "acucar": false,
+          "lactose": false,
+          "disponivel": true
+        },
+        {
+          "id": "cafe-coado",
+          "nome": "Café Coado",
+          "descricao": "Café coado tradicional",
+          "preco": 3.50,
+          "acucar": false,
+          "lactose": false,
+          "disponivel": true
+        }
+      ]
+    },
+    {
+      "id": "comidas",
+      "nome": "🥐 Comidas & Salgados",
+      "itens": [
+        {
+          "id": "croissant",
+          "nome": "Croissant",
+          "descricao": "Croissant francês folhado",
+          "preco": 6.00,
+          "acucar": true,
+          "lactose": true,
+          "disponivel": true
+        },
+        {
+          "id": "bolo-chocolate",
+          "nome": "Bolo de Chocolate",
+          "descricao": "Bolo de chocolate caseiro",
+          "preco": 5.50,
+          "acucar": true,
+          "lactose": true,
+          "disponivel": true
+        },
+        {
+          "id": "pao-queijo",
+          "nome": "Pão de Queijo",
+          "descricao": "Pão de queijo quentinho",
+          "preco": 4.00,
+          "acucar": false,
+          "lactose": true,
+          "disponivel": true
+        }
+      ]
+    },
+    {
+      "id": "sobremesas",
+      "nome": "🍰 Sobremesas & Doces",
+      "itens": [
+        {
+          "id": "brownie",
+          "nome": "Brownie",
+          "descricao": "Brownie de chocolate com nozes",
+          "preco": 7.00,
+          "acucar": true,
+          "lactose": true,
+          "disponivel": true
+        },
+        {
+          "id": "torta-limao",
+          "nome": "Torta de Limão",
+          "descricao": "Torta de limão com cobertura merengue",
+          "preco": 6.50,
+          "acucar": true,
+          "lactose": true,
+          "disponivel": true
+        }
+      ]
+    }
+  ]
+}
